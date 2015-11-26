@@ -1,18 +1,17 @@
 #!/bin/bash
 
 cd ../opencog
-b="$(git rev-parse --abbrev-ref HEAD)"
-echo "$b"
-if ["$b" != "OpenCogMineCraft"]
+if [git checkout "OpenCogMineCraft"]
 then
-    echo "Creating new Branch"
+    echo "Switched Branch to OpenCogMineCraft"
+else
+    echo "Creating new Branch 'OpenCogMineCraft'"
     git stash
     git checkout -b "OpenCogMineCraft"
+    cd ../opencog-to-minecraft
+    cp -r opencog/ ../.
 fi
 
-cd ../opencog-to-minecraft
-
-cp -r opencog/ ../.
 cd ../opencog
 mkdir build
 cd build
