@@ -32,11 +32,10 @@ class PerceptionManager:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
+	print self._space_server
         self._space_server.add_map(default_map_timestamp,
                                    default_map_name,
-                                   default_map_resolution,
-                                   default_map_agent_height,
-                                   default_map_floor_height)
+                                   default_map_resolution)
 
     def _get_map(self, map_name=default_map_name):
         try:
