@@ -165,7 +165,7 @@ class SpockControlPlugin:
         msg = chunk_data_msg()
         self.msgr.setMessage(msg, data)
         
-        rospy.loginfo("published chunk message: loc: %d, %d", msg.chunk_x, msg.chunk_z)
+        rospy.logdebug("published chunk message: loc: %d, %d", msg.chunk_x, msg.chunk_z)
         self.pub_chunk.publish(msg)
     
     
@@ -181,7 +181,7 @@ class SpockControlPlugin:
             self.msgr.setMessage(meta[i], data['metadata'][i])
         
         msg.metadata = meta
-        rospy.loginfo("published chunk bulk message, sky: %s, rostime: %s, mctime: %s", msg.sky_light, msg.ROStimestamp, msg.MCtimestamp)
+        rospy.logdebug("published chunk bulk message, sky: %s, rostime: %s, mctime: %s", msg.sky_light, msg.ROStimestamp, msg.MCtimestamp)
         
         self.pub_bulk.publish(msg)
     
@@ -191,7 +191,7 @@ class SpockControlPlugin:
         msg = block_data_msg()
         self.msgr.setMessage(msg, data)
         
-        rospy.loginfo("published block update: data, %d loc: %d, %d, %d", 
+        rospy.logdebug("published block update: data, %d loc: %d, %d, %d", 
                 msg.data, msg.x, msg.y, msg.z)
         self.pub_block.publish(msg)
     
@@ -204,11 +204,11 @@ class SpockControlPlugin:
 
     def sendEntityData(self, name, data):
         
-        print(data)
+        rospy.logdebug(data)
         msg = entity_msg()
         self.msgr.setMessage(msg, data)
 
-        rospy.loginfo("published entity message: type: %d, uid: %d, loc: %d, %d, %d",
+        rospy.logdebug("published entity message: type: %d, uid: %d, loc: %d, %d, %d",
                 msg.type, msg.eid, msg.x, msg.y, msg.z)
         self.pub_entity.publish(msg)
 

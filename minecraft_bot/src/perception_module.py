@@ -32,11 +32,10 @@ class PerceptionManager:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
+	print self._space_server
         self._space_server.add_map(default_map_timestamp,
                                    default_map_name,
-                                   default_map_resolution,
-                                   default_map_agent_height,
-                                   default_map_floor_height)
+                                   default_map_resolution)
 
     def _get_map(self, map_name=default_map_name):
         try:
@@ -47,7 +46,7 @@ class PerceptionManager:
         return map_handle, self._space_server.get_map(map_handle)
 
     def handle_vision_message(self,data):
-        print "handle_visiion_message"
+        #print "handle_visiion_message"
         #TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         for block in data.blocks:
@@ -84,30 +83,36 @@ class PerceptionManager:
                 self._time_server.add_time_info(link.h,block.MCtimestamp, "MC")
             #print blocknode
             #print updated_eval_links
-        print "handle_vision_message end"
+        #print "handle_vision_message end"
 
     def handle_self_pos_message(self, data):
-        print 'handle_self_pos_message'
+        #print 'handle_self_pos_message'
         #TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         swap_y_and_z(data)
         map_handle, cur_map = self._get_map()
-        old_self_handle = cur_map.get_self_agent_entity()
+
+        #FIXME: This line commented out due the change in spacemap.  It needs
+        # to be re-enabled by the new code as well, as the if statement below
+        # which is also commented out.  This is a temporary 'hack' just to make
+        # the code work until this line is properly fixed.
+        # old_self_handle = cur_map.get_self_agent_entity()
         self_node, updated_eval_links = self._build_self_pos_node(data, map_handle)
+
         #TODO: pass timestamp in message
         timestamp = 0
         self._space_server.add_map_info(self_node.h, map_handle,
                                         True, True, timestamp,
                                         data.x, data.y, data.z, "ROS")
-        if old_self_handle.is_undefined():
-            self._time_server.add_time_info(self_node.h, timestamp, "ROS")
-            self._time_server.add_time_info(self_node.h, timestamp, "MC")
+        #if old_self_handle.is_undefined():
+            #self._time_server.add_time_info(self_node.h, timestamp, "ROS")
+            #self._time_server.add_time_info(self_node.h, timestamp, "MC")
         for link in updated_eval_links:
             self._time_server.add_time_info(link.h, timestamp, "ROS")
             self._time_server.add_time_info(link.h, timestamp, "MC")
         #print self_node
         #print self._atomspace.get_incoming(self_node.h)
-        print "handle_self_pos_message_end"
+        #print "handle_self_pos_message_end"
 
     def _build_self_pos_node(self, client, map_handle):
         #TODO: for now because we only input self client so we define node name as "self"
