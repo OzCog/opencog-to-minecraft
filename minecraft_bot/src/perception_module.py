@@ -46,7 +46,7 @@ class PerceptionManager:
         return map_handle, self._space_server.get_map(map_handle)
 
     def handle_vision_message(self,data):
-        print "handle_visiion_message"
+        #print "handle_visiion_message"
         #TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         for block in data.blocks:
@@ -83,10 +83,10 @@ class PerceptionManager:
                 self._time_server.add_time_info(link.h,block.MCtimestamp, "MC")
             #print blocknode
             #print updated_eval_links
-        print "handle_vision_message end"
+        #print "handle_vision_message end"
 
     def handle_self_pos_message(self, data):
-        print 'handle_self_pos_message'
+        #print 'handle_self_pos_message'
         #TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         swap_y_and_z(data)
@@ -112,7 +112,7 @@ class PerceptionManager:
             self._time_server.add_time_info(link.h, timestamp, "MC")
         #print self_node
         #print self._atomspace.get_incoming(self_node.h)
-        print "handle_self_pos_message_end"
+        #print "handle_self_pos_message_end"
 
     def _build_self_pos_node(self, client, map_handle):
         #TODO: for now because we only input self client so we define node name as "self"
