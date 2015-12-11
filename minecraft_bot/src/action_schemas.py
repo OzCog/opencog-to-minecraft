@@ -105,9 +105,9 @@ def move_toward_block(block_atom):
     cur_map = space_server.get_map(map_handle)
     block_pos = cur_map.get_block_location(block_atom.h)
     if block_pos == None:
-        print 'block postion not found.',block_atom
+        print 'block position not found.',block_atom
         return TruthValue(0,1)
-    dest = get_near_free_point(cur_map, block_pos, 2, (1,0,0), True)
+    dest = get_near_free_point(atomspace, cur_map, block_pos, 2, (1,0,0), True)
 
     if dest == None:
         print 'get_no_free_point'
