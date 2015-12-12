@@ -71,14 +71,16 @@ class AttentionController:
                                       ).h)
         disappeared_atom = Atom(disappeared_handle, self._atomspace)
         all_eval_links = new_atom.out + disappeared_atom.out
+        print "Found %s new blocks." % len(new_atom.out)
+        print "Found %s disappeared blocks." % len(disappeared_atom.out)
         for eval_link in all_eval_links:
             atom = eval_link.out[1]
             cur_sti = atom.av['sti']
-            print cur_sti
+            #print cur_sti
             self._atomspace.set_av(atom.h, sti=cur_sti + 5)
-            print atom
+            #print atom
             self._atomspace.remove(eval_link)
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
             self._atomspace.set_av(block.h, sti=cur_sti - 1)
-            print block
+            #print block

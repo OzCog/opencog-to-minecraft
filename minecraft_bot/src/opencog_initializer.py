@@ -29,7 +29,12 @@ ag = ActionGenerator(spacetime.get_atomspace(),
                      spacetime.get_time_server())
 ac = AttentionController(spacetime.get_atomspace())
 
+time_step = 1
+
 while not rospy.is_shutdown():
+    print "\n\nTime Step: ", time_step
+    time_step += 1
+
     ac.control_av_in_atomspace()
     ag.generate_action()
     rospy.sleep(0.8)
