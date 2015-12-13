@@ -4,6 +4,7 @@
 import os
 import roslib; roslib.load_manifest('minecraft_bot')
 import rospy
+import time
 from opencog.spacetime import SpaceTimeAndAtomSpace
 from opencog.atomspace import AtomSpace, types
 from opencog.type_constructors import set_type_ctor_atomspace
@@ -35,7 +36,19 @@ while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step
     time_step += 1
 
+    temp_time = time.time()
     ac.control_av_in_atomspace()
+    time_control_av_in_atomspace = time.time() - temp_time
+
+    temp_time = time.time()
     ag.generate_action()
-    rospy.sleep(0.8)
+    time_generate_action = time.time() - temp_time
+
+    time_total = time_control_av_in_atomspace + time_generate_action
+    print "\nTime spent\nattention value: %s\ngenerate action: %s\n\n\ntotal: %s" % (time_control_av_in_atomspace, time_generate_action, time_total)
+
+    if(time_total > 1.0):
+        print "WARNING: AI took more than 1 second to execute!"
+        
+    rospy.sleep(1.0 - time_total)
 
