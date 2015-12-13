@@ -80,6 +80,7 @@ class AttentionController:
             self._atomspace.set_av(atom.h, sti=cur_sti + 5)
             #print atom
             self._atomspace.remove(eval_link)
+        print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
             self._atomspace.set_av(block.h, sti=cur_sti - 1)
