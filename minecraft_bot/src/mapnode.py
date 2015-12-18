@@ -152,6 +152,10 @@ class MinecraftMap(object):
     
     # y is just a dummy variable, for consistency of the API
     def get_biome(self, x, y, z):
+    """ Returns the biome of the block at the given coordinates. Note: The y
+    coordinate passed to the function is ignored since boimes are the same
+    across a whole vertical column in the Minecraft universe.
+    """
         
         x, rx = divmod(x, 16)
         z, rz = divmod(z, 16)
@@ -163,11 +167,17 @@ class MinecraftMap(object):
 
 
     def set_light(self, x, y, z, light_block = None, light_sky = None):
+    """ Sets the light level for the block at the given coordinates to the
+    specified values.  If light_block or light_sky are not set in the function
+    call then the respective light values will not be set.
+    """
         
         x, rx = divmod(x, 16)
         y, ry = divmod(y, 16)
         z, rz = divmod(z, 16)
 
+        # Check to see if y > 16, i.e. if the original height was greater than
+        # 255 and therefore too high to be part of the world.
         if y > 0x0F:
             return
         
