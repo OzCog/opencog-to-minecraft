@@ -216,6 +216,10 @@ class MinecraftMap(object):
 
 # the service
 def get_block(req):
+""" Queries the Minecraft map to get the block info for a single block.  The
+requested block's info is returned to the caller in an instance of a
+map_block_msg data structure.
+"""
 
     #start = time.time()
 
@@ -232,6 +236,10 @@ def get_block(req):
     return msg
 
 def get_block_multi(req):
+""" Queries the Minecraft map multiple times (once for each block in the input list)
+to get the block info for the requested blocks and then returns a dictionary
+whose 'block' entry contains a list of the requested blocks.
+"""
 
     blocks = list()
     for req_msg in req.coords:
