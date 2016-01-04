@@ -38,6 +38,11 @@ class ClientMover():
 
 
     def camera_tick(self):
+    """ Publishes a camera position_msg to the ROS system.  The message contains
+    the camera's current position, pitch, and yaw.  Note that this is different
+    than the bot's position which is published on the 'client_position_data'
+    ROS topic.
+    """
 
         msg = position_msg()
         pos = self.pos_to_dict()
@@ -69,6 +74,8 @@ class ClientMover():
 
 
     def pos_to_dict(self):
+    """ Returns a python dictionary containng the position, pitch, yaw, and on_ground flag.
+    """
 
         return {
                 'x':self.x,
@@ -81,6 +88,10 @@ class ClientMover():
 
 
     def get_desired_yaw(self, x_0, z_0, x_1, z_1):
+    """ Returns the yaw direction (in degrees) for an entity standing on block
+    (x_0, z_0) which wants to look toward block (x_1, z_1).  This yaw angle is
+    given in the format which minecraft expects.
+    """
         
         l = x_1 - x_0
         w = z_1 - z_0
@@ -94,6 +105,12 @@ class ClientMover():
 
 
     def handle_look(self, pitch, yaw):
+    """ Publishes a series of movement_msg packets (1 every 0.5 seconds for a
+    maximum of 3 seconds) which transitions the current look direction to the
+    desired pitch and yaw as passed in the arguments.  If the movement was
+    successful within 3 seconds the function returns True, otherwise it returns
+    False.
+    """
         
         timer = 0.
         while timer < 3:
@@ -120,8 +137,11 @@ class ClientMover():
 
 
     def handle_relative_look(self, pitch, yaw):
+    """ Same as handle look but adds the values to the current look position.
+    """
         
         pos = self.pos_to_dict()
+        #TODO: Maybe we should add the pitch for consistency, even though -90 is up and 90 is down.
         desired_pitch = pos['pitch'] - pitch
         desired_yaw = pos['yaw'] + yaw
  
@@ -238,6 +258,10 @@ def handle_relative_move(req):
 
 
 def action_server():
+""" Initializes the look/movement rospy handlers and then enters a main loop
+which repeatedly calls the camera_tick() function to publish the bot's state
+information to ROS.
+"""
 
     rospy.init_node('action_server')
     

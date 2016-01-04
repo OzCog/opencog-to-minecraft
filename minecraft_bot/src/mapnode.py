@@ -152,6 +152,10 @@ class MinecraftMap(object):
     
     # y is just a dummy variable, for consistency of the API
     def get_biome(self, x, y, z):
+    """ Returns the biome of the block at the given coordinates. Note: The y
+    coordinate passed to the function is ignored since boimes are the same
+    across a whole vertical column in the Minecraft universe.
+    """
         
         x, rx = divmod(x, 16)
         z, rz = divmod(z, 16)
@@ -163,11 +167,17 @@ class MinecraftMap(object):
 
 
     def set_light(self, x, y, z, light_block = None, light_sky = None):
+    """ Sets the light level for the block at the given coordinates to the
+    specified values.  If light_block or light_sky are not set in the function
+    call then the respective light values will not be set.
+    """
         
         x, rx = divmod(x, 16)
         y, ry = divmod(y, 16)
         z, rz = divmod(z, 16)
 
+        # Check to see if y > 16, i.e. if the original height was greater than
+        # 255 and therefore too high to be part of the world.
         if y > 0x0F:
             return
         
@@ -206,6 +216,10 @@ class MinecraftMap(object):
 
 # the service
 def get_block(req):
+""" Queries the Minecraft map to get the block info for a single block.  The
+requested block's info is returned to the caller in an instance of a
+map_block_msg data structure.
+"""
 
     #start = time.time()
 
@@ -222,6 +236,10 @@ def get_block(req):
     return msg
 
 def get_block_multi(req):
+""" Queries the Minecraft map multiple times (once for each block in the input list)
+to get the block info for the requested blocks and then returns a dictionary
+whose 'block' entry contains a list of the requested blocks.
+"""
 
     blocks = list()
     for req_msg in req.coords:
