@@ -45,6 +45,17 @@ class PerceptionManager:
             return None, None
         return map_handle, self._space_server.get_map(map_handle)
 
+    def _get_er(self, er_name=default_map_name):
+        #Note: Currently we use the single SpaceMapNode to 
+        #index the SpaceMap and EntityRecorder
+        #But here we still call it er_handle
+        try:
+            er_handle = (self._atomspace.get_atoms_by_name(
+                types.SpaceMapNode, er_name)[0]).h
+        except IndexError:
+            return None, None
+        return er_handle, self._space_server.get_entity_recorder(er_handle)
+
     def handle_vision_message(self,data):
         #print "handle_visiion_message"
         #TODO: In Minecraft the up/down direction is y coord
@@ -91,12 +102,8 @@ class PerceptionManager:
         # but we should swap y and z in ros node, not here..
         swap_y_and_z(data)
         map_handle, cur_map = self._get_map()
-
-        #FIXME: This line commented out due the change in spacemap.  It needs
-        # to be re-enabled by the new code as well, as the if statement below
-        # which is also commented out.  This is a temporary 'hack' just to make
-        # the code work until this line is properly fixed.
-        # old_self_handle = cur_map.get_self_agent_entity()
+        _, cur_er = self._get_er()
+        old_self_handle = cur_er.get_self_agent_entity()
         self_node, updated_eval_links = self._build_self_pos_node(data, map_handle)
 
         #TODO: pass timestamp in message
@@ -104,9 +111,9 @@ class PerceptionManager:
         self._space_server.add_map_info(self_node.h, map_handle,
                                         True, True, timestamp,
                                         data.x, data.y, data.z, "ROS")
-        #if old_self_handle.is_undefined():
-            #self._time_server.add_time_info(self_node.h, timestamp, "ROS")
-            #self._time_server.add_time_info(self_node.h, timestamp, "MC")
+        if old_self_handle.is_undefined():
+            self._time_server.add_time_info(self_node.h, timestamp, "ROS")
+            self._time_server.add_time_info(self_node.h, timestamp, "MC")
         for link in updated_eval_links:
             self._time_server.add_time_info(link.h, timestamp, "ROS")
             self._time_server.add_time_info(link.h, timestamp, "MC")
