@@ -1,1 +1,3 @@
 *.pyc
+catkin_ws/*
+*.log

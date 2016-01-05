@@ -48,9 +48,10 @@ A python API to connect with Minecraft server.
 
 ##Step to run##
 
-It's recommended to use `tmux or `screen to run multiple ROS nodes in multiple terminal if you use Opencog docker container.
+It's recommended to use `tmux or `screen to run multiple ROS nodes in multiple
+terminals if you use Opencog docker container.
 
-1. add the following PYTHONPATH:
+1. add the following to PYTHONPATH:
 
     `/usr/local/share/opencog/python`
 
@@ -58,26 +59,27 @@ It's recommended to use `tmux or `screen to run multiple ROS nodes in multiple t
 
     `/your_opencog-to-minecraft/`
 
-   and setup the ROS environment:
+2. and setup the ROS environment:
+```
+    roscore &
+    source /where_you_create_catkin_ws/devel/setup.bash
+```
 
-    `roscore &`
-    `source /where_you_create_catkin_ws/devel/setup.bash`
+3. Start Minecraft Server.
 
-   and set up your path to action schema, in opencog_python_eval.conf:
-   
-   `PYTHON_PRELOAD_FUNCTIONS = /path/to/your/minecraft_obt/src/action_schemas.py`
+4. Follow instructions in  [minecraft_bot](minecraft_bot/README.md) to start
+   ROS nodes and initialize Spock. Now you should see the bot appeared in your
+   Minecraft. You can find the bot by move to the place bot spawned(showed in
+   the Minecraft Server).
 
-2. Start Minecraft Server.
+5. Run the command `rosrun minecraft_bot opencog_initializer.py`. You should
+   see the bot start to move randomly.
 
-3. Follow instructions in [minecraft_bot](https://github.com/opencog/opencog-to-minecraft/tree/master/minecraft_bot) to start ROS nodes and initialize Spock. Now you should see the bot appeared in your Minecraft. You can find the bot by move to the place bot spawned(showed in the Minecraft Server).
-
-4. Start the opencog_initializer.py. With rosrun minecraft_bot opencog_initializer
-
-5. You should see the bot start to move randomly.
-
-6. Put a "Gold_Ore" block in front of the bot.
-
-7. You should see the bot stops and walks toward the block. The bot is attracted by the target gold block. Then the bot leaves the gold block and keep going since as time going the attention value of block decreases. For now (20150822) that's all behaviors of the bot.
+6. Put a "Gold_Ore" block in front of the bot. You should see the bot stops and
+   walks toward the block. The bot is attracted by the target gold block. Then
+   the bot leaves the gold block and keep going since as time going the
+   attention value of block decreases. For now (20150822) that's all behaviors
+   of the bot.
 
 ##TODO##
 
@@ -100,4 +102,3 @@ It's recommended to use `tmux or `screen to run multiple ROS nodes in multiple t
 * write a script for starting all of the things(ROS nodes/Spock/Opencog/Minecraft server) in differenct terminal(using tmux/screen)
 
 * There are more subtle TODOs in the codes...We should move them to the github issues.
-
