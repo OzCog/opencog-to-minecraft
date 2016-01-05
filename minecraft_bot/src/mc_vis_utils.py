@@ -30,9 +30,10 @@ R_YAW   = 60
 block_mats = {}
 
 def init_block_mats():
-""" Sets up a bitmap (called block_mats) of possible block material types (ints from 0 to 256) and
-for each one sets whether that block type is solid (True) or nonsolid (False).
-"""
+    """ Sets up a bitmap (called block_mats) of possible block material types
+    (ints from 0 to 256) and for each one sets whether that block type is solid
+    (True) or nonsolid (False).
+    """
 
     # this is not a comprehensive list, but includes most common solid blocks
     # probably a better way to do this
@@ -47,8 +48,9 @@ for each one sets whether that block type is solid (True) or nonsolid (False).
 
 
 def is_solid(blockid):
-""" Returns whether a block with a given blockid is solid (True if light does not pass through it).
-"""
+    """ Returns whether a block with a given blockid is solid (True if light
+    does not pass through it).
+    """
 
     #print blockid
     if block_mats[blockid] == True:
@@ -58,9 +60,9 @@ def is_solid(blockid):
 
 
 def calc_ray_step(pitch, yaw, dist):
-""" Returns the cartesian distance vector (dx, dy, dz) which is equivalent to
-the radial (pitch, yaw, dist) vector passed to the function.
-"""
+    """ Returns the cartesian distance vector (dx, dy, dz) which is equivalent
+    to the radial (pitch, yaw, dist) vector passed to the function.
+    """
 
     pt = radians(pitch)
     yw = radians(yaw)
@@ -100,9 +102,9 @@ def create_vec3_msg(coords, step, num_steps):
 
 
 def get_coordinates_in_range(x, y, z, pitch, yaw):
-""" Returns a list of all possible blocks which could be seen by the bot, given
-the max vision range and the vision skip distance in each dimension.
-"""
+    """ Returns a list of all possible blocks which could be seen by the bot,
+    given the max vision range and the vision skip distance in each dimension.
+    """
 
     pit_range = np.arange(pitch - R_PITCH, pitch + R_PITCH + D_PITCH, D_PITCH)
     yaw_range = np.arange(yaw - R_YAW, yaw + R_YAW + D_YAW, D_YAW)
@@ -116,10 +118,10 @@ the max vision range and the vision skip distance in each dimension.
 
 
 def get_visible_blocks(blocks):
-""" Takes a list of all possible blocks which could be seen by the bot and
-returns a list of which ones are actually real blocks (meaning: not air) in the
-Minecraft world and in a place that is visible to the bot.
-"""
+    """ Takes a list of all possible blocks which could be seen by the bot and
+    returns a list of which ones are actually real blocks (meaning: not air) in
+    the Minecraft world and in a place that is visible to the bot.
+    """
 
     #start = time.time()
     vis_blocks = {}
@@ -165,4 +167,3 @@ Minecraft world and in a place that is visible to the bot.
     #print "total: %f"%(end-start)
 
     return vis_blocks_list
-
