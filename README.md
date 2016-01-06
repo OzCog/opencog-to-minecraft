@@ -44,7 +44,8 @@ You can also choose other Minecraft server manager you prefer.
 
 ####Spock https://github.com/SpockBotMC/SpockBot
 
-A python API to connect with Minecraft server.
+A python API to connect with Minecraft server. Install by running
+`python setup.py install` instead of `python3 setup.py install `
 
 ##Step to run##
 
@@ -65,7 +66,8 @@ terminals if you use Opencog docker container.
     source /where_you_create_catkin_ws/devel/setup.bash
 ```
 
-3. Start Minecraft Server.
+3. Edit the server.properties file, of your Minecraft server to have
+   `online-mode=false` . Then start Minecraft Server.
 
 4. Follow instructions in  [minecraft_bot](minecraft_bot/README.md) to start
    ROS nodes and initialize Spock. Now you should see the bot appeared in your
