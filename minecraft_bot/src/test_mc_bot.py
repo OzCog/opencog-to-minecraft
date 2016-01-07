@@ -22,7 +22,9 @@ from spockextras.plugins.helpers.SendEntityData import SendEntityDataPlugin
 
 
 # connect to localhost server
-settings = {'start': {'username': 'Bot',},'auth': {'authenticated': False,},}
+settings = {'start': {'username': 'Bot',},
+            'auth': {'authenticated': False, 'online_mode': False},
+            }
 plugins = default_plugins
 
 plugins.append(('Messenger', MessengerPlugin))
@@ -40,4 +42,3 @@ print("connecting to localhost on port 25565")
 
 #client.start() with no arguments will automatically connect to localhost
 client.start('localhost', 25565)
-
