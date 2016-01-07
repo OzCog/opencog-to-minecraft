@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# import roslib; roslib.load_manifest('minecraft_bot')
-# import rospy
-# from minecraft_bot.msg import movement_msg
-
 import os
 
 from spockbot import Client
@@ -23,30 +19,33 @@ from spockextras.plugins.helpers.SendEntityData import SendEntityDataPlugin
 
 
 
-# connect to localhost server
+# Configure settings
 settings = {'start': {'username': 'Bot',},
             'auth': {'authenticated': False, 'online_mode': False},
             }
+
+# Configure plugins
 plugins = default_plugins
 
 plugins.append(('Messenger', MessengerPlugin))
-plugins.append(('SendMapData', SendMapDataPlugin))
-plugins.append(('SendEntityData', SendEntityDataPlugin))
-
-
 plugins.append(('MineAndPlace', MineAndPlacePlugin))
 plugins.append(('NewMovement', NewMovementPlugin))
 #plugins.append(('NewPhysics', NewPhysicsPlugin))
+plugins.append(('SendMapData', SendMapDataPlugin))
+plugins.append(('SendEntityData', SendEntityDataPlugin))
 plugins.append(('SpockControl', SpockControlPlugin))
-client = Client(plugins = plugins, settings = settings)
 
+# Chose minecraft server
 hostname = "localhost"
 try:
+    # If the environment variable is set use it as the hostname
     hostname = os.environ["MC_SERVER_NAME"]
 except KeyError:
     pass
 
 print("Connecting to {} server on port 25565".format(hostname))
 
-#client.start() with no arguments will automatically connect to localhost
+# Create and start client
+# client.start() with no arguments will automatically connect to localhost
+client = Client(plugins = plugins, settings = settings)
 client.start(hostname, 25565)
