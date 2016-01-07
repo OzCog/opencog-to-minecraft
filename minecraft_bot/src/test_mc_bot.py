@@ -4,6 +4,8 @@
 # import rospy
 # from minecraft_bot.msg import movement_msg
 
+import os
+
 from spockbot import Client
 from spockbot.plugins import default_plugins
 from spockbot.plugins.loader import PluginLoader
@@ -38,7 +40,13 @@ plugins.append(('NewMovement', NewMovementPlugin))
 plugins.append(('SpockControl', SpockControlPlugin))
 client = Client(plugins = plugins, settings = settings)
 
-print("connecting to localhost on port 25565")
+hostname = "localhost"
+try:
+    hostname = os.environ["MC_SERVER_NAME"]
+except KeyError:
+    pass
+
+print("Connecting to {} server on port 25565".format(hostname))
 
 #client.start() with no arguments will automatically connect to localhost
-client.start('localhost', 25565)
+client.start(hostname, 25565)
