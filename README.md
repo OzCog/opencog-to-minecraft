@@ -45,7 +45,7 @@ You can also choose other Minecraft server manager you prefer.
 ####Spock https://github.com/SpockBotMC/SpockBot
 
 A python API to connect with Minecraft server. Install by running
-`python setup.py install` instead of `python3 setup.py install `
+`sudo python setup.py install` instead of `python3 setup.py install `
 
 ##Step to run##
 
