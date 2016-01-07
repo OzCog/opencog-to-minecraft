@@ -104,4 +104,3 @@ terminals if you use Opencog docker container.
 * write a script for starting all of the things(ROS nodes/Spock/Opencog/Minecraft server) in differenct terminal(using tmux/screen)
 
 * There are more subtle TODOs in the codes...We should move them to the github issues.
->>>>>>> upstream
