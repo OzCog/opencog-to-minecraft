@@ -49,6 +49,8 @@ while not rospy.is_shutdown():
 
     if(time_total > 1.0):
         print "WARNING: AI took more than 1 second to execute!"
+
+    print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
         
     rospy.sleep(1.0 - time_total)
 
