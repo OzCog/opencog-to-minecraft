@@ -56,33 +56,35 @@ A python API to connect with Minecraft server. Install by running
    `/your_opencog/build/opencog/cython/`
    `/your_opencog-to-minecraft/`
 
-2. and setup the ROS environment:
+2. setup the ROS environment:
    ```
         roscore &
         source /where_you_create_catkin_ws/devel/setup.bash
    ```
 
-3. Start Minecraft Server
+3. update `PYTHON_PRELOAD_FUNCTIONS` entry to fit your setup. 
+
+4. Start Minecraft Server
   1. Edit the server.properties file, of your Minecraft server to have
      `online-mode=false` and `difficulty=0`
   2. Start Minecraft Server.
   3. From the server console run `/op your_username`
 
-4. To start all the nodes and spawn the bot, run
+5. To start all the nodes and spawn the bot, run
    ```
         roscd minecraft_bot/                        
         roslaunch minecraft_bot default.launch      
    ```                                
    You should see the bot appeared in your Minecraft client. Should that not work for any reason, follow instructions in [minecraft_bot](minecraft_bot/README.md).
 
-5. Start Minecraft client
+6. Start Minecraft client
   1. start Multiplayer mode
   2. direct connect to localhost server
   3. change to creative mode by running `/gamemode 1`
   4. run `/tp your_username Bot` to teleport to where the Bot is, or
      `tp Bot your_username` to teleport the Bot to where you are.
 
-6. Put a "Gold_Ore" block in front of the bot. You should see the bot stops and
+7. Put a "Gold_Ore" block in front of the bot. You should see the bot stops and
    walks toward the block. The bot is attracted by the target gold block. Then
    the bot leaves the gold block and keep going since as time going the
    attention value of block decreases. For now (20150822) that's all behaviors
