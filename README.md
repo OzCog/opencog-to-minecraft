@@ -1,20 +1,23 @@
-#opencog-to-minecraft#
+# opencog-to-minecraft
 
-A ROS-based module linking OpenCog and the Minecraft world. This code serves as a starting point for integrating the two environments. The code is in a 'heavy experimentation' phase, and will therefore change drastically over the next couple of months. The steps to set up and run the module are currently rather complicated, but this will change as the code stabilizes.
+A ROS-based module linking OpenCog and the Minecraft world. This code serves as
+a starting point for integrating the two environments. The code is in a 'heavy
+experimentation' phase, and will therefore change drastically over the next
+couple of months. The steps to set up and run the module are currently rather
+complicated, but this will change as the code stabilizes.
 
-For now this repository are mainly made and managed by [LucidBlue](https://github.com/LucidBlue) and [chenesan](https://github.com/chenesan). Later this repo may be included under the [Opencog](https://github.com/opencog).
+## Prerequisite##
 
-##Prerequisite##
-
-####Ubuntu http://www.ubuntu.com
+#### Ubuntu http://www.ubuntu.com
 
 It's recommended to set up environment under [Ubuntu Trusty](http://releases.ubuntu.com/14.04/).
 
-You can also use the [Opencog docker container](http://wiki.opencog.org/w/Building_OpenCog#Docker_.2864_bit_systems_only.29), which containing Ubuntu Trusty and Opencog. Note that when starting a docker container, you have to publish port 25565 to make the Minecraft Server in the container use the port 25565 in your machine:
+You can also use the OpenCog docker containers. Follow instruction
+[here](https://github.com/opencog/docker/blob/master/opencog/README.md)
+The containers have Ubuntu Trusty, OpenCog development dependencies and some
+standard tools pre-installed.
 
-`docker create --name opencog -p 25565:25565-p 17001:17001 -p 5000:5000 -it $USER/opencog`
-
-####ROS http://www.ros.org/
+#### ROS http://www.ros.org/
 
 Now(20150823) ROS indigo distro is OK and recommended for Minecraft embodiment. Not sure if other distro will work or not.
 
@@ -22,7 +25,7 @@ Install instruction of ROS indigo is [here](http://wiki.ros.org/indigo/Installat
 
 After installing ROS you have to create a workspace ([tutorial](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)) and install the minecraft_bot package by the instruction in [official tutorial](http://wiki.ros.org/catkin/Tutorials/CreatingPackage) and [minecraft_bot/README](https://github.com/OC2MC/opencog-to-minecraft/tree/master/minecraft_bot).
 
-####Octomap http://wiki.ros.org/octomap
+#### Octomap http://wiki.ros.org/octomap
 
 In ubuntu you can directly install Octomap by:
 
@@ -32,50 +35,52 @@ In ubuntu you can directly install Octomap by:
 
 If you are not using ROS indigo distro, just change the `ros-indigo-octomap` to `ros-your_distro-octomap`
 
-####Opencog https://github.com/opencog/opencog
+#### Opencog https://github.com/opencog/opencog
 
 Just follow the README to install this.
 
-####Minecraft server(official) https://minecraft.net/download
+#### Minecraft server(official) https://minecraft.net/download
 
 Install instuction of Minecraft server is [here](http://minecraft.gamepedia.com/Tutorials/Setting_up_a_server)
 
 You can also choose other Minecraft server manager you prefer.
 
-####Spock https://github.com/SpockBotMC/SpockBot
+#### Spock https://github.com/SpockBotMC/SpockBot
 
 A python API to connect with Minecraft server. Install by running
 `sudo python setup.py install` instead of `python3 setup.py install `
 
-##Step to run##
-
-It's recommended to use `tmux or `screen to run multiple ROS nodes in multiple
-terminals if you use Opencog docker container.
-
+## Steps to start the bot
 1. add the following to PYTHONPATH:
-
-    `/usr/local/share/opencog/python`
-
-    `/your_opencog/build/opencog/cython/`
-
-    `/your_opencog-to-minecraft/`
+   `/usr/local/share/opencog/python`
+   `/your_opencog/build/opencog/cython/`
+   `/your_opencog-to-minecraft/`
 
 2. and setup the ROS environment:
-```
-    roscore &
-    source /where_you_create_catkin_ws/devel/setup.bash
-```
+   ```
+        roscore &
+        source /where_you_create_catkin_ws/devel/setup.bash
+   ```
 
-3. Edit the server.properties file, of your Minecraft server to have
-   `online-mode=false` . Then start Minecraft Server.
+3. Start Minecraft Server
+  1. Edit the server.properties file, of your Minecraft server to have
+     `online-mode=false` and `difficulty=0`
+  2. Start Minecraft Server.
+  3. From the server console run `/op your_username`
 
-4. Follow instructions in  [minecraft_bot](minecraft_bot/README.md) to start
-   ROS nodes and initialize Spock. Now you should see the bot appeared in your
-   Minecraft. You can find the bot by move to the place bot spawned(showed in
-   the Minecraft Server).
+4. To start all the nodes and spawn the bot, run
+   ```
+        roscd minecraft_bot/                        
+        roslaunch minecraft_bot default.launch      
+   ```                                
+   You should see the bot appeared in your Minecraft client. Should that not work for any reason, follow instructions in [minecraft_bot](minecraft_bot/README.md).
 
-5. Run the command `rosrun minecraft_bot opencog_initializer.py`. You should
-   see the bot start to move randomly.
+5. Start Minecraft client
+  1. start Multiplayer mode
+  2. direct connect to localhost server
+  3. change to creative mode by running `/gamemode 1`
+  4. run `/tp your_username Bot` to teleport to where the Bot is, or
+     `tp Bot your_username` to teleport the Bot to where you are.
 
 6. Put a "Gold_Ore" block in front of the bot. You should see the bot stops and
    walks toward the block. The bot is attracted by the target gold block. Then
@@ -83,7 +88,11 @@ terminals if you use Opencog docker container.
    attention value of block decreases. For now (20150822) that's all behaviors
    of the bot.
 
-##TODO##
+## Step for stopping the bot
+To stop all the nodes run `rosnode kill -a` or `rosnode kill name_of_node` for
+each ROS node started.
+
+## TODO
 
 * Document all the code.
 
