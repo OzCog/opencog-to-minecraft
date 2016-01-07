@@ -83,6 +83,23 @@ terminals if you use Opencog docker container.
    attention value of block decreases. For now (20150822) that's all behaviors
    of the bot.
 
+##Building Documentation##
+
+The python code for the bot is documented inline using doxygen.  You can build a folder containing the HTML documentation by running doxygen from there.  The commands to do this are below.  To install doxygen on an ubuntu based OS:
+
+    `sudo apt-get install doxygen`
+
+Once doxygen itself is installed you build the docs by doing:
+
+```
+    cd doc
+    doxygen Doxyfile
+```
+
+After the docs are built you can view them by loading the main index page into your browser with a command similar to:
+
+    `firefox html/index.html`
+
 ##TODO##
 
 * Document all the code.
