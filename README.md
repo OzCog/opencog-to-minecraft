@@ -62,7 +62,9 @@ A python API to connect with Minecraft server. Install by running
         source /where_you_create_catkin_ws/devel/setup.bash
    ```
 
-3. update `PYTHON_PRELOAD_FUNCTIONS` entry to fit your setup. 
+3. update `PYTHON_PRELOAD_FUNCTIONS` entry to fit your setup, in
+   `opencog_python_eval.conf` file found under the `minecraft_bot/src/`
+   directory.
 
 4. Start Minecraft Server
   1. Edit the server.properties file, of your Minecraft server to have
