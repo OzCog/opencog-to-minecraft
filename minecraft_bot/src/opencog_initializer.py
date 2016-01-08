@@ -12,6 +12,7 @@ from opencog.utilities import initialize_opencog, finalize_opencog
 from perception_module import PerceptionManager
 from attention_module import AttentionController
 from action_gen import ActionGenerator
+from grounded_knowledge import GroundedKnowledge
 
 rospy.init_node('OpenCog_Perception')
 spacetime = SpaceTimeAndAtomSpace()
@@ -30,7 +31,13 @@ ag = ActionGenerator(spacetime.get_atomspace(),
                      spacetime.get_time_server())
 ac = AttentionController(spacetime.get_atomspace())
 
+gn = GroundedKnowledge(spacetime.get_atomspace(),
+                       spacetime.get_space_server(),
+                       spacetime.get_time_server())
+
 time_step = 1
+
+gn.load_block_knowledge(1.0)
 
 while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step
