@@ -46,6 +46,13 @@ class GroundedKnowledge:
         print "\n\nLoading grounded knowledge: blocks and mining"
         print     "---------------------------------------------"
 
+        """ This is a python dictionary of block types (dirt, grass, etc).  For
+        each block type entry there is a second dictionary of (tool, resource)
+        entries.  This is interpreted as "if a block of type B is mined with
+        tool T it will yeild resource R".  Note that some combinations return
+        "NOTHING" since breaking these blocks with those specific tools does
+        not drop a resource that can be picked up.
+        """
         block_drops = {
             "DIRT" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
             "GRASS" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
@@ -57,6 +64,9 @@ class GroundedKnowledge:
             "COAL_ORE" : {"PICKAXE" : "COAL_ORE", "HAND" : "COAL_ORE"},
             "IRON_ORE" : {"PICKAXE" : "IRON_ORE", "HAND" : "IRON_ORE"},
             "GOLD_ORE" : {"IRON_PICKAXE" : "GOLD_ORE", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
+            "DIAMOND_ORE" : {"IRON_PICKAXE" : "DIAMOND", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
+            "LAPIS_ORE" : {"IRON_PICKAXE" : "LAPIS", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
+            "REDSTONE_ORE" : {"IRON_PICKAXE" : "REDSTONE_DUST", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
 
             "OAK_WOOD" : {"AXE" : "OAK_WOOD", "HAND" : "OAK_WOOD"},
             "SPRUCE_WOOD" : {"AXE" : "SPRUCE_WOOD", "HAND" : "SPRUCE_WOOD"},
@@ -64,10 +74,12 @@ class GroundedKnowledge:
             "JUNGLE_WOOD" : {"AXE" : "JUNGLE_WOOD", "HAND" : "JUNGLE_WOOD"},
         }
 
+        # Loop over the outer dictionary of block types, storing the current type in 'block'.
         for block in block_drops.keys():
             print block
             block_atom = self._atomspace.add_node(types.ConceptNode, block)
             
+            # Loop over the dictionary of (tool, drops) entries for this specific block type.
             tooldict = block_drops[block]
             for tool in tooldict.keys():
 
@@ -90,14 +102,18 @@ class GroundedKnowledge:
         special_tool_types = ("SHEARS", "FLINT_AND_STEEL")
         tool_names = []
 
+        # Create the material variant names for the tools that are material specific.
         for tool in tool_types:
             for material in ("GOLD", "WOODEN", "STONE", "IRON", "DIAMOND"):
                 atom_name = material + "_" + tool
                 tool_names.append(atom_name)
 
+        # Add on the list of tool names that only come in one variety.
         for name in special_tool_types:
             tool_names.append(name)
 
+        # Loop over the whole list of tool names and for each name create the
+        # actual atom in atomspace that represents that tool type.
         for name in tool_names:
             atom = self._atomspace.add_node(types.ConceptNode, name)
             print "Creating concept node for tool: %s" % name
