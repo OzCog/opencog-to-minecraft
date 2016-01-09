@@ -37,7 +37,9 @@ gn = GroundedKnowledge(spacetime.get_atomspace(),
 
 time_step = 1
 
+print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_block_knowledge(1.0)
+print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
 
 while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step
