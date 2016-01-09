@@ -58,11 +58,14 @@ class GroundedKnowledge:
             "GRASS" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
             "STONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
             "COBBLESTONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
+
+            "WATER" : {"HAND" : "NOTHING", "SHOVEL" : "NOTHING", "PICKAXE" : "NOTHING", "SWORD" : "NOTHING", "HOE" : "NOTHING", "AXE" : "NOTHING"},
+            "LAVA" : {"HAND" : "NOTHING", "SHOVEL" : "NOTHING", "PICKAXE" : "NOTHING", "SWORD" : "NOTHING", "HOE" : "NOTHING", "AXE" : "NOTHING"},
             "SAND" : {"SHOVEL" : "SAND", "HAND" : "SAND"},
             "GRAVEL" : {"SHOVEL" : "GRAVEL", "HAND" : "GRAVEL"},
 
             "COAL_ORE" : {"PICKAXE" : "COAL_ORE", "HAND" : "COAL_ORE"},
-            "IRON_ORE" : {"PICKAXE" : "IRON_ORE", "HAND" : "IRON_ORE"},
+            "IRON_ORE" : {"STONE_PICKAXE" : "IRON_ORE", "HAND" : "NOTHING"},
             "GOLD_ORE" : {"IRON_PICKAXE" : "GOLD_ORE", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
             "DIAMOND_ORE" : {"IRON_PICKAXE" : "DIAMOND", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
             "LAPIS_ORE" : {"IRON_PICKAXE" : "LAPIS", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
@@ -74,10 +77,18 @@ class GroundedKnowledge:
             "JUNGLE_WOOD" : {"AXE" : "JUNGLE_WOOD", "HAND" : "JUNGLE_WOOD"},
         }
 
+        block_type_root_atom = self._atomspace.add_node(types.ConceptNode, "BLOCK_TYPE")
+        print block_type_root_atom
+
         # Loop over the outer dictionary of block types, storing the current type in 'block'.
         for block in block_drops.keys():
             print block
+
+            # Create the atom for the block type itself and declare it a subtype of "BLOCK_TYPE"
             block_atom = self._atomspace.add_node(types.ConceptNode, block)
+            inh_atom = self._atomspace.add_link(types.InheritanceLink, [block_atom, block_type_root_atom])
+            print "The block material %s is a BLOCK_TYPE" % block
+            print inh_atom
             
             # Loop over the dictionary of (tool, drops) entries for this specific block type.
             tooldict = block_drops[block]
@@ -118,3 +129,36 @@ class GroundedKnowledge:
             atom = self._atomspace.add_node(types.ConceptNode, name)
             print "Creating concept node for tool: %s" % name
             print atom
+
+    def load_category_knowledge(self, knowledge_level):
+        """ Creates inheritance links for a bunch of manually defined
+        "convenience categories" which are useful for humans to interact with
+        the bot, both in the python code and in chat communication.  These are
+        also useful in rule learning because rules learned about something
+        which is in a category with other things might also apply to those
+        other things.  Having some basic categories to nudge the pattern mining
+        algorithms in the right direction should make learning initial things
+        about the world a bit easier.
+        """
+
+        print "\n\nLoading grounded knowledge: categories"
+        print     "--------------------------------------"
+
+        categories_dict = {
+            "WOOD_BLOCK" : ("OAK_WOOD", "SPRUCE_WOOD", "BIRCH_WOOD", "JUNGLE_WOOD"),
+            "STONE_BLOCK" : ("STONE", "COBBLESTONE"),
+            "ORE_BLOCK" : ("COAL_ORE", "IRON_ORE", "GOLD_ORE", "DIAMOND_ORE", "LAPIS_ORE", "REDSTONE_ORE"),
+            "PHYSICS_BLOCK" : ("WATER", "LAVA", "SAND", "GRAVEL"),
+            "FLOWING_BLOCK" : ("WATER", "LAVA"),
+            "FALLING_BLOCK" : ("SAND", "GRAVEL"),
+        }
+
+        for cat_base in categories_dict.keys():
+            for subclass_object in categories_dict[cat_base]:
+                base_atom = self._atomspace.add_node(types.ConceptNode, cat_base)
+                subclass_atom = self._atomspace.add_node(types.ConceptNode, subclass_object)
+                inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
+
+                print "%s is a %s" % (subclass_object, cat_base)
+                print inh_atom
+
