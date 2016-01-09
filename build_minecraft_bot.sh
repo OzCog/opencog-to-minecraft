@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 
 if [ -d catkin_ws/src ] ; then
     echo "catkin_ws/src found"
