@@ -22,6 +22,11 @@ crafting recipes.  Then spawn a different instance of the bot that knows 50% of
 all blocks, enemies, and crafting recipes; and so forth.
 """
 
+from opencog.atomspace import types, TruthValue
+from opencog.type_constructors import *
+from opencog.atomspace import Atom
+from atomspace_util import add_predicate
+
 class ToolKnowledge:
 
     tool_types = ("HAND", "AXE", "SHOVEL", "PICKAXE", "HOE", "SWORD", "SHEARS")
@@ -35,19 +40,35 @@ class GroundedKnowledge:
         self._time_server = time_server
 
     def load_block_knowledge(self, knowledge_level):
+        """ Creates a number of atoms in atomspace which represent grounded
+        knowledge about what kinds of blocks drop what resource when mined with
+        a given tool.  The info is hardcoded into this python routine as a
+        dictionary and then the dictionary info is converted into atomese by
+        some for loops which loop over this dictionary.
+        """
 
         print "\n\nLoading grounded knowledge: blocks and mining"
         print     "---------------------------------------------"
 
         block_drops = {
             "DIRT" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
+
             "OAK_WOOD" : {"AXE" : "OAK_WOOD", "HAND" : "OAK_WOOD"},
+            "SPRUCE_WOOD" : {"AXE" : "SPRUCE_WOOD", "HAND" : "SPRUCE_WOOD"},
+            "BIRCH_WOOD" : {"AXE" : "BIRCH_WOOD", "HAND" : "BIRCH_WOOD"},
+            "JUNGLE_WOOD" : {"AXE" : "JUNGLE_WOOD", "HAND" : "JUNGLE_WOOD"},
         }
 
         for block in block_drops.keys():
             print block
+            block_atom = self._atomspace.add_node(types.ConceptNode, block)
             
             tooldict = block_drops[block]
             for tool in tooldict.keys():
 
+                tool_atom = self._atomspace.add_node(types.ConceptNode, tool)
+                drops_atom = self._atomspace.add_node(types.ConceptNode, tooldict[tool])
+                pred_atom = add_predicate(self._atomspace, "MiningWithToolDrops", block_atom, tool_atom, drops_atom)
+
                 print "If you mine a %s block with a %s you will get %s" % (block, tool, tooldict[tool])
+                print pred_atom
