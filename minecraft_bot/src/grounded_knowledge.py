@@ -27,10 +27,6 @@ from opencog.type_constructors import *
 from opencog.atomspace import Atom
 from atomspace_util import add_predicate
 
-class ToolKnowledge:
-
-    tool_types = ("HAND", "AXE", "SHOVEL", "PICKAXE", "HOE", "SWORD", "SHEARS")
-
 class GroundedKnowledge:
 
     def __init__(self, atomspace, space_server, time_server):
@@ -81,3 +77,28 @@ class GroundedKnowledge:
 
                 print "If you mine a %s block with a %s you will get %s" % (block, tool, tooldict[tool])
                 print pred_atom
+
+    def load_tool_knowledge(self, knowledge_level):
+        """ Creates nodes in the atomspace for each of the tools and their
+        various material types.
+        """
+
+        print "\n\nLoading grounded knowledge: tools"
+        print     "---------------------------------"
+
+        tool_types = ("AXE", "SHOVEL", "PICKAXE", "HOE", "SWORD")
+        special_tool_types = ("SHEARS", "FLINT_AND_STEEL")
+        tool_names = []
+
+        for tool in tool_types:
+            for material in ("GOLD", "WOODEN", "STONE", "IRON", "DIAMOND"):
+                atom_name = material + "_" + tool
+                tool_names.append(atom_name)
+
+        for name in special_tool_types:
+            tool_names.append(name)
+
+        for name in tool_names:
+            atom = self._atomspace.add_node(types.ConceptNode, name)
+            print "Creating concept node for tool: %s" % name
+            print atom
