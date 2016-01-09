@@ -52,6 +52,15 @@ class GroundedKnowledge:
 
         block_drops = {
             "DIRT" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
+            "GRASS" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
+            "STONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
+            "COBBLESTONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
+            "SAND" : {"SHOVEL" : "SAND", "HAND" : "SAND"},
+            "GRAVEL" : {"SHOVEL" : "GRAVEL", "HAND" : "GRAVEL"},
+
+            "COAL_ORE" : {"PICKAXE" : "COAL_ORE", "HAND" : "COAL_ORE"},
+            "IRON_ORE" : {"PICKAXE" : "IRON_ORE", "HAND" : "IRON_ORE"},
+            "GOLD_ORE" : {"IRON_PICKAXE" : "GOLD_ORE", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
 
             "OAK_WOOD" : {"AXE" : "OAK_WOOD", "HAND" : "OAK_WOOD"},
             "SPRUCE_WOOD" : {"AXE" : "SPRUCE_WOOD", "HAND" : "SPRUCE_WOOD"},
