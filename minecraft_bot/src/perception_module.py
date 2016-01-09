@@ -32,7 +32,7 @@ class PerceptionManager:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
-	print self._space_server
+	#print self._space_server
         self._space_server.add_map(default_map_timestamp,
                                    default_map_name,
                                    default_map_resolution)

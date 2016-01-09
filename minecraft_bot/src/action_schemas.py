@@ -79,10 +79,10 @@ def is_attractive(atom):
     print 'is_attractive'
     sti = atom.av['sti']
     if sti > 1:
-        print 'attractive!'
+        #print 'attractive!'
         return TruthValue(1,1)
     else:
-        print 'boring'
+        #print 'boring'
         return TruthValue(0,1)
 
 def move_toward_block(block_atom):
