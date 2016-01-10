@@ -26,6 +26,7 @@ from opencog.atomspace import types, TruthValue
 from opencog.type_constructors import *
 from opencog.atomspace import Atom
 from atomspace_util import add_predicate
+from minecraft_data.v1_8 import blocks_list
 
 class GroundedKnowledge:
 
@@ -46,60 +47,30 @@ class GroundedKnowledge:
         print "\n\nLoading grounded knowledge: blocks and mining"
         print     "---------------------------------------------"
 
-        """ This is a python dictionary of block types (dirt, grass, etc).  For
-        each block type entry there is a second dictionary of (tool, resource)
-        entries.  This is interpreted as "if a block of type B is mined with
-        tool T it will yeild resource R".  Note that some combinations return
-        "NOTHING" since breaking these blocks with those specific tools does
-        not drop a resource that can be picked up.
-        """
-        block_drops = {
-            "DIRT" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
-            "GRASS" : {"SHOVEL" : "DIRT", "HAND" : "DIRT"},
-            "STONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
-            "COBBLESTONE" : {"PICKAXE" : "COBBLESTONE", "HAND" : "COBBLESTONE"},
-
-            "WATER" : {"HAND" : "NOTHING", "SHOVEL" : "NOTHING", "PICKAXE" : "NOTHING", "SWORD" : "NOTHING", "HOE" : "NOTHING", "AXE" : "NOTHING"},
-            "LAVA" : {"HAND" : "NOTHING", "SHOVEL" : "NOTHING", "PICKAXE" : "NOTHING", "SWORD" : "NOTHING", "HOE" : "NOTHING", "AXE" : "NOTHING"},
-            "SAND" : {"SHOVEL" : "SAND", "HAND" : "SAND"},
-            "GRAVEL" : {"SHOVEL" : "GRAVEL", "HAND" : "GRAVEL"},
-
-            "COAL_ORE" : {"PICKAXE" : "COAL_ORE", "HAND" : "COAL_ORE"},
-            "IRON_ORE" : {"STONE_PICKAXE" : "IRON_ORE", "HAND" : "NOTHING"},
-            "GOLD_ORE" : {"IRON_PICKAXE" : "GOLD_ORE", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
-            "DIAMOND_ORE" : {"IRON_PICKAXE" : "DIAMOND", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
-            "LAPIS_ORE" : {"IRON_PICKAXE" : "LAPIS", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
-            "REDSTONE_ORE" : {"IRON_PICKAXE" : "REDSTONE_DUST", "WOODEN_PICKAXE" : "NOTHING", "HAND" : "NOTHING"},
-
-            "OAK_WOOD" : {"AXE" : "OAK_WOOD", "HAND" : "OAK_WOOD"},
-            "SPRUCE_WOOD" : {"AXE" : "SPRUCE_WOOD", "HAND" : "SPRUCE_WOOD"},
-            "BIRCH_WOOD" : {"AXE" : "BIRCH_WOOD", "HAND" : "BIRCH_WOOD"},
-            "JUNGLE_WOOD" : {"AXE" : "JUNGLE_WOOD", "HAND" : "JUNGLE_WOOD"},
-        }
-
         block_type_root_atom = self._atomspace.add_node(types.ConceptNode, "BLOCK_TYPE")
-        print block_type_root_atom
+        #print block_type_root_atom
 
-        # Loop over the outer dictionary of block types, storing the current type in 'block'.
-        for block in block_drops.keys():
-            print block
+        # Loop over the list of all the block types in the minecraft world
+        for block in blocks_list:
+            #print "\n", block
+            concept_node = self._atomspace.add_node(types.ConceptNode, block["displayName"])
+            repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])))
+            #print repr_node
 
-            # Create the atom for the block type itself and declare it a subtype of "BLOCK_TYPE"
-            block_atom = self._atomspace.add_node(types.ConceptNode, block)
-            inh_atom = self._atomspace.add_link(types.InheritanceLink, [block_atom, block_type_root_atom])
-            print "The block material %s is a BLOCK_TYPE" % block
-            print inh_atom
-            
-            # Loop over the dictionary of (tool, drops) entries for this specific block type.
-            tooldict = block_drops[block]
-            for tool in tooldict.keys():
+            # If this block type has a recorded hardness
+            if "hardness" in block and block["hardness"] >= 0:
+                hard_node = add_predicate(self._atomspace, "Block hardness", concept_node, NumberNode(str(block["hardness"])))
+                #print hard_node
 
-                tool_atom = self._atomspace.add_node(types.ConceptNode, tool)
-                drops_atom = self._atomspace.add_node(types.ConceptNode, tooldict[tool])
-                pred_atom = add_predicate(self._atomspace, "MiningWithToolDrops", block_atom, tool_atom, drops_atom)
+            # Some block id's use a second 'metadata' value to store a subtype of a particular block type.  If this block type has variations, load them all.
+            if "variations" in block:
+                for variant in block["variations"]:
+                    concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
+                    repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])), NumberNode(str(variant["metadata"])))
+                    #print repr_node
 
-                print "If you mine a %s block with a %s you will get %s" % (block, tool, tooldict[tool])
-                print pred_atom
+
+
 
     def load_tool_knowledge(self, knowledge_level):
         """ Creates nodes in the atomspace for each of the tools and their
