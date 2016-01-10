@@ -20,7 +20,10 @@ if [ -d catkin_ws/src/minecraft_bot ] ; then
 else
     cd catkin_ws/src
     # Add the package
-    ln -s ../../minecraft_bot/ minecraft_bot
+    catkin_create_pkg minecraft_bot std_msgs rospy roscpp
+    cp -R ../../minecraft_bot .
+    # ln -s ../../minecraft_bot/ minecraft_bot    Symlinks do not work in virtualbox natively
+
     # make the folder that would have been if `catkin_create_pkg` was used.
     mkdir -p minecraft_bot/include/minecraft_bot/
     cd -
