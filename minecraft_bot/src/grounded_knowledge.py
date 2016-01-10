@@ -117,6 +117,7 @@ class GroundedKnowledge:
 
         categories_dict = {
             "WOOD_BLOCK" : (
+                "Wood",
                 "Oak wood facing up/down",
                 "Spruce wood facing up/down",
                 "Birch wood facing up/down",
@@ -132,7 +133,17 @@ class GroundedKnowledge:
                 "Oak wood with only bark",
                 "Spruce wood with only bark",
                 "Birch wood with only bark",
-                "Jungle wood with only bark"),
+                "Jungle wood with only bark",
+
+                "Wood (Acacia/Dark Oak)", 
+                "Acacia wood facing up/down", 
+                "Dark Oak wood facing up/down", 
+                "Acacia wood facing East/West", 
+                "Dark Oak wood facing East/West", 
+                "Acacia wood facing North/South", 
+                "Dark Oak wood facing North/South", 
+                "Acacia wood with only bark", 
+                "Dark Oak wood with only bark"),
 
             "STONE_BLOCK" : ("STONE", "COBBLESTONE"),
             "ORE_BLOCK" : ("COAL_ORE", "IRON_ORE", "GOLD_ORE", "DIAMOND_ORE", "LAPIS_ORE", "REDSTONE_ORE", "GLOWSTONE"),
