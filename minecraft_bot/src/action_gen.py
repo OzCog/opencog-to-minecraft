@@ -72,18 +72,33 @@ class ActionGenerator:
                 And we should use a higher level cognition ways(e.g. OpenPsi)
                 to decide what behavior tree we want to execute.
         """
+
         result = bindlink(self._atomspace,
                           BindLink(
-                              TypedVariableLink(
-                                  VariableNode("$block"),
-                                  TypeNode("StructureNode")
+                              VariableList(
+                                  TypedVariableLink(
+                                      VariableNode("$block"),
+                                      TypeNode("StructureNode")
                                   ),
+                                  TypedVariableLink(
+                                      VariableNode("$material"),
+                                      TypeNode("ConceptNode")
+                                  ),
+                              ),
+
                               AndLink(
                                   EvaluationLink(
                                       PredicateNode("material"),
                                       ListLink(
                                           VariableNode("$block"),
-                                          ConceptNode("14")
+                                          VariableNode("$material")
+                                      )
+                                  ),
+                                  EvaluationLink(
+                                      PredicateNode("be"),
+                                      ListLink(
+                                          VariableNode("$material"),
+                                          ConceptNode("WOOD_BLOCK")
                                       )
                                   ),
                                   EvaluationLink(

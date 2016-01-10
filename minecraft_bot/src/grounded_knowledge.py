@@ -145,9 +145,26 @@ class GroundedKnowledge:
         print     "--------------------------------------"
 
         categories_dict = {
-            "WOOD_BLOCK" : ("OAK_WOOD", "SPRUCE_WOOD", "BIRCH_WOOD", "JUNGLE_WOOD"),
+            "WOOD_BLOCK" : (
+                "Oak wood facing up/down",
+                "Spruce wood facing up/down",
+                "Birch wood facing up/down",
+                "Jungle wood facing up/down",
+                "Oak wood facing East/West",
+                "Spruce wood facing East/West",
+                "Birch wood facing East/West",
+                "Jungle wood facing East/West",
+                "Oak wood facing North/South",
+                "Spruce wood facing North/South",
+                "Birch wood facing North/South",
+                "Jungle wood facing North/South",
+                "Oak wood with only bark",
+                "Spruce wood with only bark",
+                "Birch wood with only bark",
+                "Jungle wood with only bark"),
+
             "STONE_BLOCK" : ("STONE", "COBBLESTONE"),
-            "ORE_BLOCK" : ("COAL_ORE", "IRON_ORE", "GOLD_ORE", "DIAMOND_ORE", "LAPIS_ORE", "REDSTONE_ORE"),
+            "ORE_BLOCK" : ("COAL_ORE", "IRON_ORE", "GOLD_ORE", "DIAMOND_ORE", "LAPIS_ORE", "REDSTONE_ORE", "GLOWSTONE"),
             "PHYSICS_BLOCK" : ("WATER", "LAVA", "SAND", "GRAVEL"),
             "FLOWING_BLOCK" : ("WATER", "LAVA"),
             "FALLING_BLOCK" : ("SAND", "GRAVEL"),
@@ -158,7 +175,9 @@ class GroundedKnowledge:
                 base_atom = self._atomspace.add_node(types.ConceptNode, cat_base)
                 subclass_atom = self._atomspace.add_node(types.ConceptNode, subclass_object)
                 inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
+                pred_atom = add_predicate(self._atomspace, "be", subclass_atom, base_atom)
 
                 print "%s is a %s" % (subclass_object, cat_base)
                 print inh_atom
+                print pred_atom
 

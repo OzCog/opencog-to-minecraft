@@ -76,7 +76,7 @@ def is_attractive(atom):
     TODO: 
     Set the sti standard value as argument: For now we set "sti > 1" as condition.
     """
-    print 'is_attractive'
+    #print 'is_attractive'
     sti = atom.av['sti']
     if sti > 1:
         #print 'attractive!'
