@@ -57,10 +57,11 @@ class GroundedKnowledge:
             concept_node = self._atomspace.add_node(types.ConceptNode, block["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])))
             inh_node = add_predicate(self._atomspace, "be", block_type_root_atom, concept_node)
-            print inh_node
+            #print inh_node
             #print repr_node
 
             # If this block type has a recorded hardness
+            hard_node = 0
             if "hardness" in block and block["hardness"] >= 0:
                 hard_node = add_predicate(self._atomspace, "Block hardness", concept_node, NumberNode(str(block["hardness"])))
                 #print hard_node
@@ -71,8 +72,12 @@ class GroundedKnowledge:
                     concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
                     repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])), NumberNode(str(variant["metadata"])))
                     inh_node = add_predicate(self._atomspace, "be", block_type_root_atom, concept_node)
-                    print inh_node
+                    #print inh_node
                     #print repr_node
+
+                    if hard_node != 0:
+                        hard_node = add_predicate(self._atomspace, "Block hardness", concept_node, NumberNode(str(block["hardness"])))
+                        #print hard_node
 
 
 
@@ -84,17 +89,23 @@ class GroundedKnowledge:
 
         print "\nLoading grounded knowledge: items"
 
+        item_type_root_atom = self._atomspace.add_node(types.ConceptNode, "ITEM_TYPE")
+
         for item in items_list:
             #print item
             atom = self._atomspace.add_node(types.ConceptNode, item["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(item["id"])))
+            inh_node = add_predicate(self._atomspace, "be", item_type_root_atom, atom)
             #print repr_node
+            #print inh_node
 
             if "variations" in item:
                 for variant in item["variations"]:
                     concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
                     repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(item["id"])), NumberNode(str(variant["metadata"])))
+                    inh_node = add_predicate(self._atomspace, "be", item_type_root_atom, concept_node)
                     #print repr_node
+                    #print inh_node
 
     def load_entity_knowledge(self, knowledge_level):
         """ Creates atoms representing the different kinds of entities that can
@@ -105,11 +116,15 @@ class GroundedKnowledge:
 
         print "\nLoading grounded knowledge: entities"
 
+        entity_type_root_atom = self._atomspace.add_node(types.ConceptNode, "ENTITY_TYPE")
+
         for entity in entities_list:
             #print entity
             atom = self._atomspace.add_node(types.ConceptNode, entity["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(entity["id"])))
+            inh_node = add_predicate(self._atomspace, "be", entity_type_root_atom, atom)
             #print repr_node
+            #print inh_node
 
             if "type" in entity:
                 type_node = add_predicate(self._atomspace, "Minecraft entity type", atom, ConceptNode(str(entity["type"])))
