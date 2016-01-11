@@ -28,6 +28,7 @@ from opencog.atomspace import Atom
 from atomspace_util import add_predicate
 from minecraft_data.v1_8 import blocks_list
 from minecraft_data.v1_8 import items_list
+from minecraft_data.v1_8 import entities_list
 
 class GroundedKnowledge:
 
@@ -90,6 +91,25 @@ class GroundedKnowledge:
                     concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
                     repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(item["id"])), NumberNode(str(variant["metadata"])))
                     #print repr_node
+
+    def load_entity_knowledge(self, knowledge_level):
+        """ Creates atoms representing the different kinds of entities that can
+        be encountered in the minecraft world.  Entities are things like the
+        small dropped versions of mined blocks which fall on the ground after
+        mining, or other creatures like animals or enemies, etc.
+        """
+
+        print "\nLoading grounded knowledge: entities"
+
+        for entity in entities_list:
+            #print entity
+            atom = self._atomspace.add_node(types.ConceptNode, entity["displayName"])
+            repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(entity["id"])))
+            #print repr_node
+
+            if "type" in entity:
+                type_node = add_predicate(self._atomspace, "Minecraft entity type", atom, ConceptNode(str(entity["type"])))
+                #print type_node
 
     def load_category_knowledge(self, knowledge_level):
         """ Creates inheritance links for a bunch of manually defined

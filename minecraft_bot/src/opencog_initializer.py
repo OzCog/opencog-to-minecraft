@@ -42,6 +42,8 @@ gn.load_block_knowledge(1.0)
 print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_item_knowledge(1.0)
 print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_entity_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_category_knowledge(1.0)
 print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 
