@@ -56,6 +56,8 @@ class GroundedKnowledge:
             #print "\n", block
             concept_node = self._atomspace.add_node(types.ConceptNode, block["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])))
+            inh_node = add_predicate(self._atomspace, "be", block_type_root_atom, concept_node)
+            print inh_node
             #print repr_node
 
             # If this block type has a recorded hardness
@@ -68,6 +70,8 @@ class GroundedKnowledge:
                 for variant in block["variations"]:
                     concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
                     repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])), NumberNode(str(variant["metadata"])))
+                    inh_node = add_predicate(self._atomspace, "be", block_type_root_atom, concept_node)
+                    print inh_node
                     #print repr_node
 
 
