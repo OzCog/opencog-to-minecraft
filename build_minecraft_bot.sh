@@ -29,6 +29,12 @@ else
     cd -
 fi
 
+echo "building through catkin_make"
 cd catkin_ws
 catkin_make
+
+echo "updating opencog_python_eval.conf to catkin_ws path"
+cd src/minecraft_bot/src
+cwd=$(pwd)
+sed -ie "s#CATKIN_WS_PATH#$cwd#" opencog_python_eval.conf
 cd -
