@@ -227,7 +227,7 @@ class ClientMover():
             msg.pitch = frame['pitch']
             msg.yaw = frame['yaw']
             msg.jump = jump
-            print "rel_move_msg", msg
+            #print "rel_move_msg", msg
             self.pub_move.publish(msg)
         return True
 
