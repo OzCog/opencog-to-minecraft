@@ -39,11 +39,11 @@ time_step = 1
 
 print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_block_knowledge(1.0)
-print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
-gn.load_tool_knowledge(1.0)
-print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_item_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_category_knowledge(1.0)
-print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 
 while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step
@@ -58,7 +58,7 @@ while not rospy.is_shutdown():
     time_generate_action = time.time() - temp_time
 
     time_total = time_control_av_in_atomspace + time_generate_action
-    print "\nTime spent\nattention value: %s\ngenerate action: %s\n\n\ntotal: %s" % (time_control_av_in_atomspace, time_generate_action, time_total)
+    print "\nTime spent\nattention value: %s\ngenerate action: %s\n-----------\ntotal: %s" % (time_control_av_in_atomspace, time_generate_action, time_total)
 
     if(time_total > 1.0):
         print "WARNING: AI took more than 1 second to execute!"

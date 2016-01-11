@@ -27,6 +27,7 @@ from opencog.type_constructors import *
 from opencog.atomspace import Atom
 from atomspace_util import add_predicate
 from minecraft_data.v1_8 import blocks_list
+from minecraft_data.v1_8 import items_list
 
 class GroundedKnowledge:
 
@@ -44,8 +45,7 @@ class GroundedKnowledge:
         some for loops which loop over this dictionary.
         """
 
-        print "\n\nLoading grounded knowledge: blocks and mining"
-        print     "---------------------------------------------"
+        print "\nLoading grounded knowledge: blocks and mining"
 
         block_type_root_atom = self._atomspace.add_node(types.ConceptNode, "BLOCK_TYPE")
         #print block_type_root_atom
@@ -72,34 +72,24 @@ class GroundedKnowledge:
 
 
 
-    def load_tool_knowledge(self, knowledge_level):
-        """ Creates nodes in the atomspace for each of the tools and their
-        various material types.
+    def load_item_knowledge(self, knowledge_level):
+        """ Creates nodes in the atomspace for each of the items and their
+        various properties
         """
 
-        print "\n\nLoading grounded knowledge: tools"
-        print     "---------------------------------"
+        print "\nLoading grounded knowledge: items"
 
-        tool_types = ("AXE", "SHOVEL", "PICKAXE", "HOE", "SWORD")
-        special_tool_types = ("SHEARS", "FLINT_AND_STEEL")
-        tool_names = []
+        for item in items_list:
+            #print item
+            atom = self._atomspace.add_node(types.ConceptNode, item["displayName"])
+            repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(item["id"])))
+            #print repr_node
 
-        # Create the material variant names for the tools that are material specific.
-        for tool in tool_types:
-            for material in ("GOLD", "WOODEN", "STONE", "IRON", "DIAMOND"):
-                atom_name = material + "_" + tool
-                tool_names.append(atom_name)
-
-        # Add on the list of tool names that only come in one variety.
-        for name in special_tool_types:
-            tool_names.append(name)
-
-        # Loop over the whole list of tool names and for each name create the
-        # actual atom in atomspace that represents that tool type.
-        for name in tool_names:
-            atom = self._atomspace.add_node(types.ConceptNode, name)
-            print "Creating concept node for tool: %s" % name
-            print atom
+            if "variations" in item:
+                for variant in item["variations"]:
+                    concept_node = self._atomspace.add_node(types.ConceptNode, variant["displayName"])
+                    repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(item["id"])), NumberNode(str(variant["metadata"])))
+                    #print repr_node
 
     def load_category_knowledge(self, knowledge_level):
         """ Creates inheritance links for a bunch of manually defined
@@ -112,8 +102,7 @@ class GroundedKnowledge:
         about the world a bit easier.
         """
 
-        print "\n\nLoading grounded knowledge: categories"
-        print     "--------------------------------------"
+        print "\nLoading grounded knowledge: categories"
 
         categories_dict = {
             "WOOD_BLOCK" : (
@@ -156,10 +145,11 @@ class GroundedKnowledge:
             for subclass_object in categories_dict[cat_base]:
                 base_atom = self._atomspace.add_node(types.ConceptNode, cat_base)
                 subclass_atom = self._atomspace.add_node(types.ConceptNode, subclass_object)
-                inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
+                #TODO: Maybe delete this permanantly, for now just store as a predicate, not as an InheritanceLink
+                #inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
                 pred_atom = add_predicate(self._atomspace, "be", subclass_atom, base_atom)
 
-                print "%s is a %s" % (subclass_object, cat_base)
-                print inh_atom
-                print pred_atom
+                #print "%s is a %s" % (subclass_object, cat_base)
+                #print inh_atom
+                #print pred_atom
 
