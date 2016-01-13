@@ -12,6 +12,7 @@ from opencog.utilities import initialize_opencog, finalize_opencog
 from perception_module import PerceptionManager
 from attention_module import AttentionController
 from action_gen import ActionGenerator
+from grounded_knowledge import GroundedKnowledge
 
 rospy.init_node('OpenCog_Perception')
 spacetime = SpaceTimeAndAtomSpace()
@@ -30,7 +31,21 @@ ag = ActionGenerator(spacetime.get_atomspace(),
                      spacetime.get_time_server())
 ac = AttentionController(spacetime.get_atomspace())
 
+gn = GroundedKnowledge(spacetime.get_atomspace(),
+                       spacetime.get_space_server(),
+                       spacetime.get_time_server())
+
 time_step = 1
+
+print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_block_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_item_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_entity_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_category_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 
 while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step
@@ -45,7 +60,7 @@ while not rospy.is_shutdown():
     time_generate_action = time.time() - temp_time
 
     time_total = time_control_av_in_atomspace + time_generate_action
-    print "\nTime spent\nattention value: %s\ngenerate action: %s\n\n\ntotal: %s" % (time_control_av_in_atomspace, time_generate_action, time_total)
+    print "\nTime spent\nattention value: %s\ngenerate action: %s\n-----------\ntotal: %s" % (time_control_av_in_atomspace, time_generate_action, time_total)
 
     if(time_total > 1.0):
         print "WARNING: AI took more than 1 second to execute!"

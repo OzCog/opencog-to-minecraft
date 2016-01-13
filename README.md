@@ -82,17 +82,34 @@ A python API to connect with Minecraft server. Install by running
   4. run `/tp your_username Bot` to teleport to where the Bot is, or
      `tp Bot your_username` to teleport the Bot to where you are.
 
-6. Put a "Gold_Ore" block in front of the bot. You should see the bot stops and
-   walks toward the block. The bot is attracted by the target gold block. Then
-   the bot leaves the gold block and keep going since as time going the
+6. Put a "Wood" block in front of the bot. You should see the bot stops and
+   walks toward the block. The bot is attracted by the target wood block. Then
+   the bot leaves the block and keeps going since as time going the
    attention value of block decreases. For now (20150822) that's all behaviors
    of the bot.
+
+##Building Documentation##
+
+The python code for the bot is documented inline using doxygen.  You can build a folder containing the HTML documentation by running doxygen from there.  The commands to do this are below.  To install doxygen on an ubuntu based OS:
+
+    `sudo apt-get install doxygen`
+
+Once doxygen itself is installed you build the docs by doing:
+
+```
+    cd doc
+    doxygen Doxyfile
+```
+
+After the docs are built you can view them by loading the main index page into your browser with a command similar to:
+
+    `firefox html/index.html`
 
 ## Step for stopping the bot
 To stop all the nodes run `rosnode kill -a` or `rosnode kill name_of_node` for
 each ROS node started.
 
-## TODO
+##TODO##
 
 * Document all the code.
 

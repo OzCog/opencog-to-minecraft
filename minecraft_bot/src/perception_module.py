@@ -10,6 +10,7 @@ from opencog.atomspace import Atom
 from atomspace_util import add_predicate, add_location
 from atomspace_util import get_predicate, get_most_recent_pred_val
 from ros_perception import ROSPerceptionInterface
+from spockbot.mcdata import blocks
 
 default_map_timestamp = 0
 default_map_name = "MCmap"
@@ -32,7 +33,7 @@ class PerceptionManager:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
-	print self._space_server
+	#print self._space_server
         self._space_server.add_map(default_map_timestamp,
                                    default_map_name,
                                    default_map_resolution)
@@ -62,23 +63,34 @@ class PerceptionManager:
         # but we should swap y and z in ros node, not here..
         for block in data.blocks:
             swap_y_and_z(block)
+        material_dict = {}
         map_handle, cur_map = self._get_map()
         for block in data.blocks:
             old_block_handle = cur_map.get_block((block.x, block.y, block.z))
             updated_eval_links = []
+
+            # Count how many of each block type we have seen during this vision frame.
+            block_material = blocks.get_block(block.blockid, block.metadata).display_name
+            if block_material in material_dict:
+                material_dict[block_material] += 1
+            else:
+                material_dict[block_material] = 1
+
             if old_block_handle.is_undefined():
                 blocknode, updated_eval_links = self._build_block_nodes(block, map_handle)
             else:
                 old_block_type_node = get_predicate(self._atomspace, "material",
                                                     Atom(old_block_handle, self._atomspace), 1)
                 old_block_type = self._atomspace.get_name(old_block_type_node.h)
-                if old_block_type == str(block.blockid):
+                if old_block_type == block_material:
                     continue
                 elif block.blockid == 0:
                     blocknode, updated_eval_links = Atom(Handle(-1), self._atomspace), []
                 else:
                     blocknode, updated_eval_links = self._build_block_nodes(block,
                                                                             map_handle)
+
+                
                 #TODO: not sure if we should add disappeared predicate here,
                 #It looks reasonable but make the code more messy..
                 disappeared_link = add_predicate(self._atomspace, "disappeared", Atom(old_block_handle, self._atomspace))
@@ -94,6 +106,16 @@ class PerceptionManager:
                 self._time_server.add_time_info(link.h,block.MCtimestamp, "MC")
             #print blocknode
             #print updated_eval_links
+
+        #TODO: The code below stores the number of blocks of each type seen in the current field of view into the atomspace.  It is commented out as it should probably not store this until the code to erase old values is also added otherwise this data just piles up as new links from the same root node and it becomes a jumbled mess.
+        #print "\nBlock material summary:  saw %s kinds of blocks" % len(material_dict)
+        """
+        for material in material_dict.keys():
+            #print "Saw %s '%s' blocks this frame." % (material_dict[material], material)
+            pred_node = add_predicate(self._atomspace, "Currently seen blocks of type", ConceptNode(material), NumberNode(str(material_dict[material])))
+            self._atomspace.add_link(types.Link, [ConceptNode("Currently seen block stats"), pred_node])
+        """
+
         #print "handle_vision_message end"
 
     def handle_self_pos_message(self, data):
@@ -160,7 +182,7 @@ class PerceptionManager:
                                         [block.x, block.y, block.z])
         updated_eval_links.append(at_location_link)
 
-        type_node = self._atomspace.add_node(types.ConceptNode, str(block.blockid))
+        type_node = self._atomspace.add_node(types.ConceptNode, blocks.get_block(block.blockid, block.metadata).display_name)
         material_link = add_predicate(self._atomspace, "material",
                                       obj_node, type_node)
         updated_eval_links.append(material_link)

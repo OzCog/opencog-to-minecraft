@@ -76,13 +76,13 @@ def is_attractive(atom):
     TODO: 
     Set the sti standard value as argument: For now we set "sti > 1" as condition.
     """
-    print 'is_attractive'
+    #print 'is_attractive'
     sti = atom.av['sti']
     if sti > 1:
-        print 'attractive!'
+        #print 'attractive!'
         return TruthValue(1,1)
     else:
-        print 'boring'
+        #print 'boring'
         return TruthValue(0,1)
 
 def move_toward_block(block_atom):

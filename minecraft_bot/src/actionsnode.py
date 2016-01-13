@@ -115,7 +115,7 @@ class ClientMover():
 
         timer = 0.
         while timer < 3:
-            if self.inRange(self.yaw, yaw) and self.inRange(self.pitch, pitch):
+            if self.in_range(self.yaw, yaw) and self.in_range(self.pitch, pitch):
                 return True
 
             frames = phy.get_look_frames(self.pos_to_dict(), pitch, yaw)
@@ -148,7 +148,7 @@ class ClientMover():
 
         timer = 0.
         while timer < 3:
-            if self.inRange(self.yaw, desired_yaw) and self.inRange(self.pitch, desired_pitch):
+            if self.in_range(self.yaw, desired_yaw) and self.in_range(self.pitch, desired_pitch):
                 return True
 
             if desired_pitch < -90:
@@ -173,7 +173,7 @@ class ClientMover():
                 msg.pitch = frame['pitch']
                 msg.yaw = frame['yaw']
 
-                print msg
+                #print msg
                 self.pub_move.publish(msg)
 
             timer += 0.5
@@ -198,7 +198,7 @@ class ClientMover():
             msg.pitch = frame['pitch']
             msg.yaw = frame['yaw']
             msg.jump = jump
-            print "abs_move_msg", msg
+            #print "abs_move_msg", msg
             self.pub_move.publish(msg)
         return True
 
@@ -227,7 +227,7 @@ class ClientMover():
             msg.pitch = frame['pitch']
             msg.yaw = frame['yaw']
             msg.jump = jump
-            print "rel_move_msg", msg
+            #print "rel_move_msg", msg
             self.pub_move.publish(msg)
         return True
 
