@@ -48,7 +48,7 @@ Seperate the schemas to different modules: some schemas are for decision making
 import math
 import roslib; roslib.load_manifest('minecraft_bot')
 import rospy
-from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv
+from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv, dig_srv
 from opencog.spacetime import SpaceTimeAndAtomSpace
 from opencog.spatial import get_near_free_point
 from opencog.atomspace import types, TruthValue
@@ -67,6 +67,7 @@ try:
     _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
     _ros_set_relative_move = rospy.ServiceProxy('set_relative_move', rel_move_srv)
     _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
+    _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
 except rospy.ServiceException, e:
     print "service call failed: %s"% e
 
@@ -133,6 +134,19 @@ def move_toward_block(block_atom):
         else:
             print 'move fail'
             return TruthValue(0,1)
+
+def dig_block(block_atom):
+    """ Make the bot mine the block with the currently selected tool until the block is mined out.
+    """
+    print 'dig block', block_atom
+
+    map_handle = (atomspace.get_atoms_by_name(
+        types.SpaceMapNode, "MCmap")[0]).h
+    cur_map = space_server.get_map(map_handle)
+    block_pos = cur_map.get_block_location(block_atom.h)
+    if block_pos == None:
+        print 'block position not found.',block_atom
+        return TruthValue(0,1)
 
 def set_look(pitch_atom, yaw_atom):
     """set look toward the given direction.

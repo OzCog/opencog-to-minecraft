@@ -13,8 +13,8 @@ from math import pi, acos, asin, sqrt
 import roslib; roslib.load_manifest('minecraft_bot')
 import rospy
 
-from minecraft_bot.msg import position_msg, movement_msg
-from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv
+from minecraft_bot.msg import position_msg, movement_msg, dig_msg
+from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv, dig_srv
 
 import mc_vis_utils as vis
 import mc_physics_utils as phy
@@ -35,6 +35,7 @@ class ClientMover():
 
         self.pub_move = rospy.Publisher('movement_data', movement_msg, queue_size = 10)
         self.pub_pos = rospy.Publisher('camera_position_data', position_msg, queue_size = 100)
+        self.pub_dig = rospy.Publisher('dig_data', dig_msg, queue_size = 100)
 
 
     def camera_tick(self):
@@ -245,6 +246,10 @@ def handle_absolute_move(req):
     print 'absmove result'
     return result
 
+def handle_dig(req):
+    print 'handle_dig'
+    result = 0
+    return result
 
 
 def handle_relative_look(req):
@@ -275,6 +280,7 @@ def action_server():
 
     abs_look_srvc = rospy.Service('set_look', look_srv, handle_absolute_look)
     abs_move_srvc = rospy.Service('set_move', abs_move_srv, handle_absolute_move)
+    dig_srvc = rospy.Service('set_dig', dig_srv, handle_dig)
 
 
     print("action server initialized")
