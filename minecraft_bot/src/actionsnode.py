@@ -115,7 +115,7 @@ class ClientMover():
 
         timer = 0.
         while timer < 3:
-            if self.inRange(self.yaw, yaw) and self.inRange(self.pitch, pitch):
+            if self.in_range(self.yaw, yaw) and self.in_range(self.pitch, pitch):
                 return True
 
             frames = phy.get_look_frames(self.pos_to_dict(), pitch, yaw)
@@ -148,7 +148,7 @@ class ClientMover():
 
         timer = 0.
         while timer < 3:
-            if self.inRange(self.yaw, desired_yaw) and self.inRange(self.pitch, desired_pitch):
+            if self.in_range(self.yaw, desired_yaw) and self.in_range(self.pitch, desired_pitch):
                 return True
 
             if desired_pitch < -90:
