@@ -23,7 +23,7 @@ Now(20150823) ROS indigo distro is OK and recommended for Minecraft embodiment. 
 
 Install instruction of ROS indigo is [here](http://wiki.ros.org/indigo/Installation/Ubuntu).
 
-After installing ROS you have to create a workspace ([tutorial](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)) and install the minecraft_bot package by the instruction in [official tutorial](http://wiki.ros.org/catkin/Tutorials/CreatingPackage) and [minecraft_bot/README](https://github.com/OC2MC/opencog-to-minecraft/tree/master/minecraft_bot).
+After installing ROS you have to create a workspace ([tutorial](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)) and install the minecraft_bot package by the instruction in [official tutorial](http://wiki.ros.org/catkin/Tutorials/CreatingPackage) and [minecraft_bot/README](https://github.com/opencog/opencog-to-minecraft/tree/master/minecraft_bot).
 
 #### Octomap http://wiki.ros.org/octomap
 
@@ -62,31 +62,27 @@ A python API to connect with Minecraft server. Install by running
         source /where_you_create_catkin_ws/devel/setup.bash
    ```
 
-3. update `PYTHON_PRELOAD_FUNCTIONS` entry to fit your setup, in
-   `opencog_python_eval.conf` file found under the `minecraft_bot/src/`
-   directory.
-
-4. Start Minecraft Server
+3. Start Minecraft Server
   1. Edit the server.properties file, of your Minecraft server to have
      `online-mode=false` and `difficulty=0`
   2. Start Minecraft Server.
   3. From the server console run `/op your_username`
 
-5. To start all the nodes and spawn the bot, run
+4. To start all the nodes and spawn the bot, run
    ```
         roscd minecraft_bot/                        
         roslaunch minecraft_bot default.launch      
    ```                                
    You should see the bot appeared in your Minecraft client. Should that not work for any reason, follow instructions in [minecraft_bot](minecraft_bot/README.md).
 
-6. Start Minecraft client
+5. Start Minecraft client
   1. start Multiplayer mode
   2. direct connect to localhost server
   3. change to creative mode by running `/gamemode 1`
   4. run `/tp your_username Bot` to teleport to where the Bot is, or
      `tp Bot your_username` to teleport the Bot to where you are.
 
-7. Put a "Wood" block in front of the bot. You should see the bot stops and
+6. Put a "Wood" block in front of the bot. You should see the bot stops and
    walks toward the block. The bot is attracted by the target wood block. Then
    the bot leaves the block and keeps going since as time going the
    attention value of block decreases. For now (20150822) that's all behaviors

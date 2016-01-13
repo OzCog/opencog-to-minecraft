@@ -20,12 +20,19 @@ if [ -d catkin_ws/src/minecraft_bot ] ; then
 else
     cd catkin_ws/src
     # Add the package
-    ln -s ../../minecraft_bot/ minecraft_bot
+     ln -s ../../minecraft_bot/ minecraft_bot 
+
     # make the folder that would have been if `catkin_create_pkg` was used.
     mkdir -p minecraft_bot/include/minecraft_bot/
     cd -
 fi
 
+echo "building through catkin_make"
 cd catkin_ws
 catkin_make
+
+echo "updating opencog_python_eval.conf to catkin_ws path"
+cd src/minecraft_bot/src
+cwd=$(pwd)
+sed -ie "s#CATKIN_WS_PATH#$cwd#" opencog_python_eval.conf
 cd -
