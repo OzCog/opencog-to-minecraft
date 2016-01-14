@@ -13,8 +13,9 @@ from math import pi, acos, asin, sqrt
 import roslib; roslib.load_manifest('minecraft_bot')
 import rospy
 
-from minecraft_bot.msg import position_msg, movement_msg, dig_msg
+from minecraft_bot.msg import position_msg, movement_msg, mine_block_msg
 from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv, dig_srv
+from spockbot.mcdata import constants
 
 import mc_vis_utils as vis
 import mc_physics_utils as phy
@@ -35,7 +36,7 @@ class ClientMover():
 
         self.pub_move = rospy.Publisher('movement_data', movement_msg, queue_size = 10)
         self.pub_pos = rospy.Publisher('camera_position_data', position_msg, queue_size = 100)
-        self.pub_dig = rospy.Publisher('dig_data', dig_msg, queue_size = 100)
+        self.pub_dig = rospy.Publisher('mine_block_data', mine_block_msg, queue_size = 100)
 
 
     def camera_tick(self):
@@ -233,11 +234,14 @@ class ClientMover():
         return True
 
     def handle_dig(self, x, y, z):
-        msg = dig_msg()
+        msg = mine_block_msg()
         msg.x = x
         msg.y = y
         msg.z = z
+        msg.status = constants.DIG_START
+        msg.face = constants.FACE_Y_POS
         self.pub_dig.publish(msg)
+        rospy.sleep(8)
         return True
 
 def handle_absolute_look(req):

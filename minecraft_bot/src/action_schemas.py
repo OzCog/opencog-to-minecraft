@@ -149,7 +149,8 @@ def dig_block(block_atom):
         print 'block position not found.',block_atom
         return TruthValue(0,1)
     else:
-        response = _ros_set_dig(block_pos[0], block_pos[1], block_pos[2])
+        #TODO: Flipping y and z positions for ROS to Minecraft convention
+        response = _ros_set_dig(block_pos[0], block_pos[2], block_pos[1])
         return TruthValue(1, 1)
 
 def set_look(pitch_atom, yaw_atom):

@@ -6,8 +6,10 @@ simple plugin to provide block mine and place capability
 """
 from spockbot import mcdata
 from spockbot.plugins.base import pl_announce
+from spockbot.mcdata import constants
 
 import logging
+import time
 logger = logging.getLogger('spock')
 
 
@@ -68,8 +70,12 @@ class MineAndPlacePlugin:
                 'face':         int(data.face)}
         
         self.net.push_packet('PLAY>Player Digging', block_data)
+
+        for i in range(0, 10):
+            self.net.push_packet('PLAY>Animation', {})
+            time.sleep(0.5)
         
         # update status to 2 (finished) and push final packet
-        block_data['status'] = 2
+        block_data['status'] = constants.DIG_FINISH
         
         self.net.push_packet('PLAY>Player Digging', block_data)
