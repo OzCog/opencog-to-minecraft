@@ -232,6 +232,8 @@ class ClientMover():
             self.pub_move.publish(msg)
         return True
 
+    def handle_dig(self, x, y, z):
+        return True
 
 def handle_absolute_look(req):
 
@@ -248,7 +250,7 @@ def handle_absolute_move(req):
 
 def handle_dig(req):
     print 'handle_dig'
-    result = 0
+    result = client_pos.handle_dig(req.x, req.y, req.z)
     return result
 
 

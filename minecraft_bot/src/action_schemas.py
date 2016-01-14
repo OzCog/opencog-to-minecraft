@@ -58,6 +58,7 @@ rospy.wait_for_service('set_relative_look')
 rospy.wait_for_service('set_look')
 rospy.wait_for_service('set_relative_move')
 rospy.wait_for_service('set_move')
+rospy.wait_for_service('set_dig')
 
 atomspace = SpaceTimeAndAtomSpace().get_atomspace()
 space_server = SpaceTimeAndAtomSpace().get_space_server()
