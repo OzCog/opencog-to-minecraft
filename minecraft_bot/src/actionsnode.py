@@ -233,6 +233,11 @@ class ClientMover():
         return True
 
     def handle_dig(self, x, y, z):
+        msg = dig_msg()
+        msg.x = x
+        msg.y = y
+        msg.z = z
+        self.pub_dig.publish(msg)
         return True
 
 def handle_absolute_look(req):
