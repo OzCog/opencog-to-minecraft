@@ -77,6 +77,17 @@ class ActionGenerator:
                 to decide what behavior tree we want to execute.
         """
 
+        # The goal_sucess_rate represents how well a given strategy is working
+        # toward achieving the success of the overall goal it is trying to
+        # achieve.  This sucess rate defaults to 0 here, and during the main
+        # goal execution the result is something that is furthering the goal
+        # then it can set this to a higher value.  The more successful we are
+        # in satisfying a certain goal, the more likely we are to continue
+        # doing this thing, i.e. if we are in the process of doing something
+        # that takes time and are making progress, don't switch to some other
+        # goal right in the middle of that.
+        goal_success_rate = 0.0
+
         # Read the current goal from atomspace
         goal = bindlink(self._atomspace,
             BindLink(
@@ -161,6 +172,15 @@ class ActionGenerator:
                       )
             print "action_gen: result", Atom(result, self._atomspace)
 
+            # If we sucessfully mined out a block of wood we have been very
+            # successful in fulfilling this goal and should continue to try to
+            # mine more unless something else really urgent comes up.  If we
+            # failed, then we should try to find something else to do.
+            if self._atomspace.get_outgoing(result) != []:
+                goal_success_rate = 5.0
+            else:
+                goal_success_rate = -5.0
+
         elif goal_name == "Explore":
             print "action_gen: random walk."
 
@@ -183,6 +203,8 @@ class ActionGenerator:
                              )
                          )
 
+            goal_success_rate = 1.0
+
         elif goal_name == "Look around":
             print "action_gen: look around."
 
@@ -204,12 +226,14 @@ class ActionGenerator:
                              )
                          )
 
+            goal_success_rate = 0.5
+
         # Decide whether or not we should change the current goal, or if we
         # should keep doing the same thing in the next time step.
         print "It has been %s time steps since the goal was changed." % self.steps_since_goal_change
 
         # Make it more and more likely to change the current goal depending on how long we have been on the current goal.
-        if random.normalvariate(0.0, 1.0) >= 1.5 - 0.1*self.steps_since_goal_change:
+        if random.normalvariate(0.0, 1.0) >= 1.5 - 0.1*self.steps_since_goal_change + 0.1*goal_success_rate:
             print "\n\n\n\t\t\tChanging current goal\n\n\n"
             self.steps_since_goal_change = 1
 
