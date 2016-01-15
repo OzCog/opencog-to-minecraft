@@ -228,6 +228,13 @@ class ActionGenerator:
 
             goal_success_rate = 0.5
 
+        else:
+            # If we got here then there was no handler coded yet for the
+            # currently selected goal.  Return a very negative
+            # goal_success_rate so that we switch to another goal since
+            # standing around doing nothing is not productive.
+            goal_success_rate = -20.0
+
         # Decide whether or not we should change the current goal, or if we
         # should keep doing the same thing in the next time step.
         print "It has been %s time steps since the goal was changed." % self.steps_since_goal_change
@@ -260,10 +267,10 @@ class ActionGenerator:
             random_goal = goal_atoms_list[random.randint(0, len(goal_atoms_list)-1)]
             print "Random goal: ", random_goal
 
-            # TODO: Need to delete the existing CURRENT_GOAL link and then
-            # create a new one pointing to the new one.  I think getlink and
-            # putlink are the functions to do this.  Currently the bot just
-            # stays at the existing goal forever.
+            # delete the existing CURRENT_GOAL link and then
+            # create a new one pointing to the newly chosen goal.
+            self._atomspace.remove(Link(ConceptNode("CURRENT_GOAL"), ConceptNode(goal_name)))
+            self._atomspace.add_link(types.Link, (ConceptNode("CURRENT_GOAL"), random_goal))
         else:
             self.steps_since_goal_change += 1
 
