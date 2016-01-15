@@ -92,10 +92,7 @@ class ActionGenerator:
             ).h
         )
 
-        print "action_gen: goal", Atom(goal, self._atomspace)
-
-        #FIXME: This is just a hack to hard set the goal, it should be replaced by reading the actual name of the goal from the bindlink above.
-        goal_name = "Explore"
+        goal_name = Atom(goal, self._atomspace).out[0].name
         print "goal_name: ", goal_name
 
         ########################################################################
