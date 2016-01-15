@@ -50,11 +50,16 @@ You can also choose other Minecraft server manager you prefer.
 A python API to connect with Minecraft server. Install by running
 `sudo python setup.py install` instead of `python3 setup.py install `
 
+
 ## Steps to start the bot
-1. add the following to PYTHONPATH:
-   `/usr/local/share/opencog/python`
-   `/your_opencog/build/opencog/cython/`
-   `/your_opencog-to-minecraft/`
+
+1. add the following to PYTHONPATH:  
+   `/usr/local/share/opencog/python`  
+   `/your_opencog/build/opencog/cython/`  
+   `/your_opencog-to-minecraft/`  
+
+   > If you prefer Pycharm to do Python development, follow the instructions in _**PYCHARM.md**_.  
+   > Return back and continue from the next step.
 
 2. setup the ROS environment:
    ```
