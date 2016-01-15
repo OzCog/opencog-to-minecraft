@@ -38,6 +38,7 @@ class ActionGenerator:
         self._time_server = time_server
 
     def generate_action(self):
+        #TODO: This documantation is outdated.
         """ generate and execute the action by behavior tree
 
         Now (20150822) we generate action by such a behavior tree:
@@ -73,6 +74,7 @@ class ActionGenerator:
                 to decide what behavior tree we want to execute.
         """
 
+        # Read the current goal from atomspace
         goal = bindlink(self._atomspace,
             BindLink(
                 VariableList(
@@ -92,7 +94,28 @@ class ActionGenerator:
 
         print "action_gen: goal", Atom(goal, self._atomspace)
 
-        result = bindlink(self._atomspace,
+        #FIXME: This is just a hack to hard set the goal, it should be replaced by reading the actual name of the goal from the bindlink above.
+        goal_name = "Explore"
+        print "goal_name: ", goal_name
+
+        ########################################################################
+        #                           Main Action Tree                           
+        ########################################################################
+        # This if - elif chain is the main action generation code for the bot.
+        # The chain of if statements here branches off of the currently
+        # selected goal.  Inside each if block is code which should further
+        # advance that particular goal for the bot.  So for example, on the
+        # gather resources goal, the code looks through the bot's memory for
+        # blocks which are wood/ore/etc and then travels to one of them and
+        # mines it out.
+        if goal_name == "Gather resources":
+            print "action_gen: gather resources."
+            # Find resources:
+            # This bindlink looks through all of the blocks currently in the bot's
+            # memory about the world and returns a list of all the ones that are
+            # just the base wood type (i.e. what trees are made out of, not planks,
+            # slabs, buttons, etc).
+            result = bindlink(self._atomspace,
                           BindLink(
                               VariableList(
                                   TypedVariableLink(
@@ -136,11 +159,14 @@ class ActionGenerator:
                               VariableNode("$block")
                           ).h
                       )
-        print "action_gen: result", Atom(result, self._atomspace)
+            print "action_gen: result", Atom(result, self._atomspace)
 
-        if self._atomspace.get_outgoing(result) == []:
-            print "action_gen: no result, random walk."
+        elif goal_name == "Explore":
+            print "action_gen: random walk."
 
+            # Random walk:
+            # Choose a random direction and walk 1 block in that direction and
+            # either execute a normal walk or a walk + jump in that direction.
             evaluate_atom(self._atomspace,
                              EvaluationLink(
                                  GroundedPredicateNode("py: action_schemas.set_relative_move"),
@@ -153,6 +179,27 @@ class ActionGenerator:
                                          ),
                                      NumberNode("1"),
                                      ConceptNode("jump")
+                                 )
+                             )
+                         )
+
+        elif goal_name == "Look around":
+            print "action_gen: look around."
+
+            # Random walk:
+            # Choose a random direction and walk 1 block in that direction and
+            # either execute a normal walk or a walk + jump in that direction.
+            evaluate_atom(self._atomspace,
+                             EvaluationLink(
+                                 GroundedPredicateNode("py: action_schemas.set_relative_look"),
+                                 ListLink(
+                                     RandomChoiceLink(
+                                         NumberNode("0"),
+                                         NumberNode("90"),
+                                         NumberNode("180"),
+                                         NumberNode("270"),
+                                         ),
+                                     NumberNode("0")
                                  )
                              )
                          )
