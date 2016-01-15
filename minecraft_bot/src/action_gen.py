@@ -90,7 +90,7 @@ class ActionGenerator:
             ).h
         )
 
-        print "action_gen: goal", Atom(goal, self._atomspace)[0]
+        print "action_gen: goal", Atom(goal, self._atomspace)
 
         result = bindlink(self._atomspace,
                           BindLink(
