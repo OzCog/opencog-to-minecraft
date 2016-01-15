@@ -20,6 +20,8 @@ from opencog.atomspace import types, TruthValue
 from opencog.type_constructors import *
 from opencog.bindlink import bindlink, evaluate_atom
 from opencog.atomspace import Atom
+
+import random
 class ActionGenerator:
     """ determining and executing action of Opencog bot in each loop
 
@@ -36,6 +38,7 @@ class ActionGenerator:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
+        self.steps_since_goal_change = 1
 
     def generate_action(self):
         #TODO: This documantation is outdated.
@@ -200,5 +203,45 @@ class ActionGenerator:
                                  )
                              )
                          )
+
+        # Decide whether or not we should change the current goal, or if we
+        # should keep doing the same thing in the next time step.
+        print "It has been %s time steps since the goal was changed." % self.steps_since_goal_change
+
+        # Make it more and more likely to change the current goal depending on how long we have been on the current goal.
+        if random.normalvariate(0.0, 1.0) >= 1.5 - 0.1*self.steps_since_goal_change:
+            print "\n\n\n\t\t\tChanging current goal\n\n\n"
+            self.steps_since_goal_change = 1
+
+            # Get the full list of all the goals in the atomspace
+            goal_atoms = bindlink(self._atomspace,
+                BindLink(
+                    TypedVariableLink(
+                        VariableNode("$goal"),
+                        TypeNode("ConceptNode")
+                    ),
+                    EvaluationLink(
+                        PredicateNode("be"),
+                        ListLink(
+                            ConceptNode("GOAL"),
+                            VariableNode("$goal")
+                        ),
+                    ),
+                    VariableNode("$goal")
+                ).h)
+            goal_atoms_list = Atom(goal_atoms, self._atomspace).out
+            #print "All goals: ", goal_atoms_list
+
+            #TODO: This should be done in atomese.
+            random_goal = goal_atoms_list[random.randint(0, len(goal_atoms_list)-1)]
+            print "Random goal: ", random_goal
+
+            # TODO: Need to delete the existing CURRENT_GOAL link and then
+            # create a new one pointing to the new one.  I think getlink and
+            # putlink are the functions to do this.  Currently the bot just
+            # stays at the existing goal forever.
+        else:
+            self.steps_since_goal_change += 1
+
 
         print "action_gen end"
