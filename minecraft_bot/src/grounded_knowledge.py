@@ -192,3 +192,53 @@ class GroundedKnowledge:
                 #print inh_atom
                 #print pred_atom
 
+    def load_goal_knowledge(self, knowledge_level):
+        """ Creates atoms for a bunch of different goals to achieve.  The
+        satisfaction of these goals leads to the overall happiness of the bot.
+        """
+
+        print "\nLoading grounded knowledge: goals"
+
+        goal_root_node = self._atomspace.add_node(types.ConceptNode, "GOAL")
+
+        goal_dict = {
+            "Gather resources" : {
+                "description" : "Gather resources like wood, stone, ore, etc.  The base resources which are needed to craft tools and other items.",
+                "init_need" : 1,
+                "init_desire" : 10,
+            },
+
+            "Rest" : {
+                "description" : "Stand around doing nothing.",
+                "init_need" : 0,
+                "init_desire" : 0.01,
+            },
+
+            "Explore" : {
+                "description" : "Discover new blocks.",
+                "init_need" : 1,
+                "init_desire" : 2,
+            },
+
+            "Discover" : {
+                "description" : "Discover new kinds of blocks.",
+                "init_need" : 0,
+                "init_desire" : 100,
+            },
+
+            "Look around" : {
+                "description" : "Patrol the already explored area to look at blocks that have not been seen in a long time.",
+                "init_need" : 0,
+                "init_desire" : 0.1,
+            },
+        }
+
+        for goal in goal_dict:
+            concept_node = self._atomspace.add_node(types.ConceptNode, goal)
+            inh_node = add_predicate(self._atomspace, "be", goal_root_node, concept_node)
+            #print inh_node
+
+        current_goal = self._atomspace.add_node(types.ConceptNode, "CURRENT_GOAL")
+        goal_link = self._atomspace.add_link(types.Link, (current_goal, ConceptNode("Look around")))
+        #print goal_link
+
