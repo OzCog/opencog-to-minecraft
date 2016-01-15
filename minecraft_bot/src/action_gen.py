@@ -73,6 +73,25 @@ class ActionGenerator:
                 to decide what behavior tree we want to execute.
         """
 
+        goal = bindlink(self._atomspace,
+            BindLink(
+                VariableList(
+                    TypedVariableLink(
+                        VariableNode("$goal"),
+                        TypeNode("ConceptNode")
+                    ),
+                ),
+
+                Link(
+                    ConceptNode("CURRENT_GOAL"),
+                    VariableNode("$goal")
+                ),
+                VariableNode("$goal")
+            ).h
+        )
+
+        print "action_gen: goal", Atom(goal, self._atomspace)[0]
+
         result = bindlink(self._atomspace,
                           BindLink(
                               VariableList(
