@@ -108,7 +108,7 @@ class ActionGenerator:
                                      )
                                   ),
                                   EvaluationLink(
-                                      GroundedPredicateNode("py: action_schemas.move_toward_block"),
+                                      GroundedPredicateNode("py: action_schemas.dig_block"),
                                       ListLink(
                                           VariableNode("$block")
                                       )

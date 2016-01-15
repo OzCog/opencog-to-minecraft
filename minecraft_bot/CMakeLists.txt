@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    vec3_msg.msg
+   dig_msg.msg
    position_msg.msg
    movement_msg.msg
    mine_block_msg.msg
@@ -72,6 +73,7 @@ add_message_files(
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
+   dig_srv.srv
    look_srv.srv
    rel_move_srv.srv
    abs_move_srv.srv

@@ -84,8 +84,8 @@ class SpockControlPlugin:
 	
         # subscribe to Spock related data streams from ROS
 	rospy.Subscriber('movement_data', movement_msg, self.moveTo, queue_size=1)
-	#rospy.Subscriber('mine_block_data', mine_block_msg, self.mineBlock, queue_size=1)
-	#rospy.Subscriber('place_block_data', place_block_msg, self.placeBlock, queue_size=1)
+	rospy.Subscriber('mine_block_data', mine_block_msg, self.mineBlock, queue_size=1)
+	rospy.Subscriber('place_block_data', place_block_msg, self.placeBlock, queue_size=1)
         #rospy.Subscriber('look_test', position_msg, self.lookTest, queue_size = 1)
 
         #self.pub_time =      rospy.Publisher('time_data', time_msg, queue_size = 1)
