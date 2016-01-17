@@ -70,6 +70,7 @@ class PerceptionManager:
             updated_eval_links = []
 
             # Count how many of each block type we have seen during this vision frame.
+            # Also store the new block material in case it differs from the existing material.
             # TODO: Use this dict for something or it can be removed, currently it is created and filled up but not used by anything else.
             block_material = blocks.get_block(block.blockid, block.metadata).display_name
             if block_material in material_dict:
@@ -77,11 +78,14 @@ class PerceptionManager:
             else:
                 material_dict[block_material] = 1
 
+            # If this is the first time this block has been seen
             if old_block_handle.is_undefined():
+                # Create the block in atomspace and set its initial attention value.
                 blocknode, updated_eval_links = self._build_block_nodes(block, map_handle)
                 # TODO: Make the 200 a constant, this occurs one other place.
                 self._atomspace.set_av(blocknode.h, 200)
             else:
+                # Block already exists, check to see if it is still the same type.
                 old_block_type_node = get_predicate(self._atomspace, "material",
                                                     Atom(old_block_handle, self._atomspace), 1)
                 old_block_type = self._atomspace.get_name(old_block_type_node.h)
@@ -94,15 +98,20 @@ class PerceptionManager:
                     self._atomspace.set_av(old_block_handle, cur_sti)
                     continue
                 elif block.blockid == 0:
+                    # Block used to be solid and is now an air block, remove it from the atomspace and mark
+                    # the old block as being disappeared for the attention allocation routine to look at.
                     blocknode, updated_eval_links = Atom(Handle(-1), self._atomspace), []
+                    disappeared_link = add_predicate(self._atomspace, "disappeared", Atom(old_block_handle, self._atomspace))
+                    updated_eval_links.append(disappeared_link)
                 else:
+                    # NOTE: There is a bit of a bug here since the attention value does not increase here, but that is ok because this is rare anyway so skipping an increase is no big deal.
                     blocknode, updated_eval_links = self._build_block_nodes(block,
                                                                             map_handle)
                 
-                #TODO: not sure if we should add disappeared predicate here,
-                #It looks reasonable but make the code more messy..
                 disappeared_link = add_predicate(self._atomspace, "disappeared", Atom(old_block_handle, self._atomspace))
                 updated_eval_links.append(disappeared_link)
+
+            # Add the block to the spaceserver and the timeserver.
             self._space_server.add_map_info(blocknode.h, map_handle, False, False,
                                             block.ROStimestamp,
                                             block.x, block.y, block.z)
