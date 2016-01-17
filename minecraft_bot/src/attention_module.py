@@ -77,11 +77,11 @@ class AttentionController:
             atom = eval_link.out[1]
             cur_sti = atom.av['sti']
             #print cur_sti
-            self._atomspace.set_av(atom.h, sti=cur_sti + 5)
+            self._atomspace.set_av(atom.h, sti=cur_sti + 200)
             #print atom
             self._atomspace.remove(eval_link)
         print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
-            self._atomspace.set_av(block.h, sti=cur_sti - 1)
+            self._atomspace.set_av(block.h, sti=max(cur_sti - 10, cur_sti / 1.36471))
             #print block
