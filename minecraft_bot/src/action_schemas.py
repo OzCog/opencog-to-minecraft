@@ -78,13 +78,10 @@ def is_attractive(atom):
     TODO: 
     Set the sti standard value as argument: For now we set "sti > 1" as condition.
     """
-    #print 'is_attractive'
     sti = atom.av['sti']
     if sti > 1:
-        #print 'attractive!'
         return TruthValue(1,1)
     else:
-        #print 'boring'
         return TruthValue(0,1)
 
 def move_toward_block(block_atom):
@@ -101,32 +98,46 @@ def move_toward_block(block_atom):
         Add distance argument: make caller control the judgement of "near"
     """
     print 'move toward atom', block_atom
+
+    # Get the block position info from the atomspace, to do this we query spacemap.
     jump = False
     map_handle = (atomspace.get_atoms_by_name(
         types.SpaceMapNode, "MCmap")[0]).h
     cur_map = space_server.get_map(map_handle)
     cur_er = space_server.get_entity_recorder(map_handle)
     block_pos = cur_map.get_block_location(block_atom.h)
+
+    # If we did not find the block in the spacemap than return false, otherwise
+    # continue the function.
     if block_pos == None:
         print 'block position not found.',block_atom
         return TruthValue(0,1)
+
+    # Try to find an open block we can stand on near the target block.
     dest = get_near_free_point(atomspace, cur_map, block_pos, 2, (1,0,0), True)
 
     if dest == None:
         print 'get_no_free_point'
+
     print 'block_pos, dest', block_pos, dest
+
+    # Get the position of the bot.
     self_handle = cur_er.get_self_agent_entity()
     self_pos = cur_er.get_last_appeared_location(self_handle)
 
+    # Check to see if we are already standing where we want, if so then we are
+    # done, otherwise actually pass the move call along to ROS.
     if (math.floor(self_pos[0]) == dest[0]
         and math.floor(self_pos[1]) == dest[1]
         and math.floor(self_pos[2]) == dest[2]):
         print 'has arrived there'
         return TruthValue(1,1)
     else:
+        # Pass the call to ROS and return its success value back to the caller of this function.
         #TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         response = _ros_set_move(block_pos[0], block_pos[1], jump)
+        # TODO: The AI is expected to finish a full step in less than 1 second, so we should figure out a better value for this wait timer.
         rospy.sleep(1)
         print 'action_schemas: abs_move response', response
         if response.state:
