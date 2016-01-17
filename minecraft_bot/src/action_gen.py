@@ -185,7 +185,7 @@ class ActionGenerator:
             print "action_gen: random walk."
 
             # Random walk:
-            # Choose a random direction and walk 1 block in that direction and
+            # Choose a random direction and walk a short distance in that direction and
             # either execute a normal walk or a walk + jump in that direction.
             evaluate_atom(self._atomspace,
                              EvaluationLink(
@@ -193,11 +193,20 @@ class ActionGenerator:
                                  ListLink(
                                      RandomChoiceLink(
                                          NumberNode("0"),
+                                         NumberNode("45"),
                                          NumberNode("90"),
+                                         NumberNode("135"),
                                          NumberNode("180"),
+                                         NumberNode("225"),
                                          NumberNode("270"),
+                                         NumberNode("315"),
                                          ),
-                                     NumberNode("1"),
+                                     RandomChoiceLink(
+                                         NumberNode("1"),
+                                         NumberNode("2"),
+                                         NumberNode("3"),
+                                         NumberNode("4"),
+                                         ),
                                      ConceptNode("jump")
                                  )
                              )
