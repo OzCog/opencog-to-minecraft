@@ -70,6 +70,7 @@ class PerceptionManager:
             updated_eval_links = []
 
             # Count how many of each block type we have seen during this vision frame.
+            # TODO: Use this dict for something or it can be removed, currently it is created and filled up but not used by anything else.
             block_material = blocks.get_block(block.blockid, block.metadata).display_name
             if block_material in material_dict:
                 material_dict[block_material] += 1
@@ -78,18 +79,25 @@ class PerceptionManager:
 
             if old_block_handle.is_undefined():
                 blocknode, updated_eval_links = self._build_block_nodes(block, map_handle)
+                # TODO: Make the 200 a constant, this occurs one other place.
+                self._atomspace.set_av(blocknode.h, 200)
             else:
                 old_block_type_node = get_predicate(self._atomspace, "material",
                                                     Atom(old_block_handle, self._atomspace), 1)
                 old_block_type = self._atomspace.get_name(old_block_type_node.h)
                 if old_block_type == block_material:
+                    # Add short term importance to this block since it is in the field of view.
+                    cur_sti = self._atomspace.get_av(old_block_handle)['sti']
+                    # TODO: Make these numbers constants.
+                    # TODO: Make the amount added be dependendant on the distance to the block.
+                    cur_sti = min(cur_sti + 20, 500)
+                    self._atomspace.set_av(old_block_handle, cur_sti)
                     continue
                 elif block.blockid == 0:
                     blocknode, updated_eval_links = Atom(Handle(-1), self._atomspace), []
                 else:
                     blocknode, updated_eval_links = self._build_block_nodes(block,
                                                                             map_handle)
-
                 
                 #TODO: not sure if we should add disappeared predicate here,
                 #It looks reasonable but make the code more messy..

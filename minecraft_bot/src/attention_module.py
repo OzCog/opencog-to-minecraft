@@ -74,11 +74,11 @@ class AttentionController:
         print "Found %s new blocks." % len(new_atom.out)
         print "Found %s disappeared blocks." % len(disappeared_atom.out)
         for eval_link in all_eval_links:
+            # TODO: This next line needs to be more specific rather than just selecting the first link.
             atom = eval_link.out[1]
             cur_sti = atom.av['sti']
-            #print cur_sti
+            # TODO: Make the 200 a constant, this occurs one other place.
             self._atomspace.set_av(atom.h, sti=cur_sti + 200)
-            #print atom
             self._atomspace.remove(eval_link)
         print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
