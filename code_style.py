@@ -8,6 +8,7 @@ arg_parser = argparse.ArgumentParser(description="Align coding style \
 arg_parser.add_argument("-c", "--check", action="store_true")
 arg_parser.add_argument("-p", "--preview", action="store_true")
 arg_parser.add_argument("-r", "--refactor", action="store_true")
+arg_parser.add_argument("-a", "--all", action="store_true")
 arg_parser.add_argument("-f", "--file")
 
 
@@ -29,9 +30,22 @@ def refactor_autopep8(filename):
     print "DONE !\n\n"
 
 
+def refactor_autopep8_all():
+    directory = "minecraft_bot/src/"
+    all_filenames = [f for f in os.listdir(directory)
+                 if os.path.isfile(os.path.join(directory, f))]
+
+    for filename in all_filenames:
+        if filename[-3:] == ".py":
+            refactor_autopep8(directory + filename)
+
+
 if __name__ == '__main__':
     arguments = vars(arg_parser.parse_args(sys.argv[1:]))
     python_filename = "minecraft_bot/src/" + arguments["file"]
+
+    if arguments["all"]:
+        refactor_autopep8_all()
 
     if arguments["check"]:
         check_pep8_errors(python_filename)
@@ -41,4 +55,3 @@ if __name__ == '__main__':
 
     if arguments["refactor"]:
         refactor_autopep8(python_filename)
-
