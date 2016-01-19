@@ -1,6 +1,8 @@
 import os
 import sys
 import argparse
+import minecraft_bot
+import spockextras
 
 arg_parser = argparse.ArgumentParser(description="Align coding style \
             according to PEP8 guidelines.")
@@ -26,6 +28,14 @@ arg_parser.add_argument("-i", "--interactive", action="store_true",
 
 arg_parser.add_argument("-f", "--file", help="name of .py file in src \
                         directory, passed as an argument")
+
+all_files = ["minecraft_bot/src/" + f + ".py" for f in
+             minecraft_bot.src.__all__] + \
+            ["spockextras/plugins/cores/" + f + ".py" for f in
+             spockextras.plugins.cores.__all__] + \
+            ["spockextras/plugins/helpers/" + f + ".py" for f in
+             spockextras.plugins.helpers.__all__] + \
+            ["spockextras/" + f + ".py" for f in spockextras.__all__]
 
 
 def check_pep8_errors(filename):
@@ -112,7 +122,10 @@ if __name__ == '__main__':
         start_interactive_mode()
     else:
         try:
-            python_filename = "minecraft_bot/src/" + arguments["file"]
+            for a_file in all_files:
+                if a_file.split("/")[-1] == arguments["file"]:
+                    python_filename = a_file
+                    break
         except TypeError:
             arg_parser.print_help()
 
