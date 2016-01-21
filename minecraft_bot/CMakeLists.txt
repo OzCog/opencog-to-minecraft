@@ -48,7 +48,6 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    vec3_msg.msg
-   dig_msg.msg
    position_msg.msg
    movement_msg.msg
    mine_block_msg.msg

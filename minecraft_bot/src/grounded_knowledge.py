@@ -48,12 +48,11 @@ class GroundedKnowledge:
 
         print "\nLoading grounded knowledge: blocks and mining"
 
+        # This root atom is the atom that all block types are a subtype of.
         block_type_root_atom = self._atomspace.add_node(types.ConceptNode, "BLOCK_TYPE")
-        #print block_type_root_atom
 
-        # Loop over the list of all the block types in the minecraft world
+        # Loop over the block types in the spock bot library and load each one into the atomspace.
         for block in blocks_list:
-            #print "\n", block
             concept_node = self._atomspace.add_node(types.ConceptNode, block["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", concept_node, NumberNode(str(block["id"])))
             inh_node = add_predicate(self._atomspace, "be", block_type_root_atom, concept_node)
@@ -75,12 +74,10 @@ class GroundedKnowledge:
                     #print inh_node
                     #print repr_node
 
+                    # If the main block type had a hardness then set the same hardness for this variation as well.
                     if hard_node != 0:
                         hard_node = add_predicate(self._atomspace, "Block hardness", concept_node, NumberNode(str(block["hardness"])))
                         #print hard_node
-
-
-
 
     def load_item_knowledge(self, knowledge_level):
         """ Creates nodes in the atomspace for each of the items and their
@@ -89,10 +86,11 @@ class GroundedKnowledge:
 
         print "\nLoading grounded knowledge: items"
 
+        # This root atom is the atom that all item types are a subtype of.
         item_type_root_atom = self._atomspace.add_node(types.ConceptNode, "ITEM_TYPE")
 
+        # Loop over the items in the spock bot library and load each one into the atomspace.
         for item in items_list:
-            #print item
             atom = self._atomspace.add_node(types.ConceptNode, item["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(item["id"])))
             inh_node = add_predicate(self._atomspace, "be", item_type_root_atom, atom)
@@ -116,10 +114,11 @@ class GroundedKnowledge:
 
         print "\nLoading grounded knowledge: entities"
 
+        # This root atom is the atom that all entity types are a subtype of.
         entity_type_root_atom = self._atomspace.add_node(types.ConceptNode, "ENTITY_TYPE")
 
+        # Loop over the entities in the spock bot library and load each one into the atomspace.
         for entity in entities_list:
-            #print entity
             atom = self._atomspace.add_node(types.ConceptNode, entity["displayName"])
             repr_node = add_predicate(self._atomspace, "Represented in Minecraft by", atom, NumberNode(str(entity["id"])))
             inh_node = add_predicate(self._atomspace, "be", entity_type_root_atom, atom)
@@ -180,15 +179,65 @@ class GroundedKnowledge:
             "FALLING_BLOCK" : ("SAND", "GRAVEL"),
         }
 
+        # Loop over all the categories.
         for cat_base in categories_dict.keys():
+            # Within each category, loop over all of the objects that are in that category.
             for subclass_object in categories_dict[cat_base]:
                 base_atom = self._atomspace.add_node(types.ConceptNode, cat_base)
                 subclass_atom = self._atomspace.add_node(types.ConceptNode, subclass_object)
                 #TODO: Maybe delete this permanantly, for now just store as a predicate, not as an InheritanceLink
                 #inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
                 pred_atom = add_predicate(self._atomspace, "be", subclass_atom, base_atom)
-
-                #print "%s is a %s" % (subclass_object, cat_base)
                 #print inh_atom
                 #print pred_atom
+
+    def load_goal_knowledge(self, knowledge_level):
+        """ Creates atoms for a bunch of different goals to achieve.  The
+        satisfaction of these goals leads to the overall happiness of the bot.
+        """
+
+        print "\nLoading grounded knowledge: goals"
+
+        goal_root_node = self._atomspace.add_node(types.ConceptNode, "GOAL")
+
+        goal_dict = {
+            "Gather resources" : {
+                "description" : "Gather resources like wood, stone, ore, etc.  The base resources which are needed to craft tools and other items.",
+                "init_need" : 1,
+                "init_desire" : 10,
+            },
+
+            "Rest" : {
+                "description" : "Stand around doing nothing.",
+                "init_need" : 0,
+                "init_desire" : 0.01,
+            },
+
+            "Explore" : {
+                "description" : "Discover new blocks.",
+                "init_need" : 1,
+                "init_desire" : 2,
+            },
+
+            "Discover" : {
+                "description" : "Discover new kinds of blocks.",
+                "init_need" : 0,
+                "init_desire" : 100,
+            },
+
+            "Look around" : {
+                "description" : "Patrol the already explored area to look at blocks that have not been seen in a long time.",
+                "init_need" : 0,
+                "init_desire" : 0.1,
+            },
+        }
+
+        for goal in goal_dict:
+            concept_node = self._atomspace.add_node(types.ConceptNode, goal)
+            inh_node = add_predicate(self._atomspace, "be", goal_root_node, concept_node)
+            #print inh_node
+
+        current_goal = self._atomspace.add_node(types.ConceptNode, "CURRENT_GOAL")
+        goal_link = self._atomspace.add_link(types.Link, (current_goal, ConceptNode("Look around")))
+        #print goal_link
 
