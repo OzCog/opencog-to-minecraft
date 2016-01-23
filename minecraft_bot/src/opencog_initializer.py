@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 
-#A python script executed in cogserver to initialize all things
+# A python script executed in cogserver to initialize all things
 import os
-import roslib; roslib.load_manifest('minecraft_bot')
+import roslib
+roslib.load_manifest('minecraft_bot')
 import rospy
 import time
 from opencog.spacetime import SpaceTimeAndAtomSpace
@@ -66,6 +67,5 @@ while not rospy.is_shutdown():
         print "WARNING: AI took more than 1 second to execute!"
 
     print "\nAtomspace contains %s atoms" % len(spacetime.get_atomspace())
-        
-    rospy.sleep(1.0 - time_total)
 
+    rospy.sleep(1.0 - time_total)

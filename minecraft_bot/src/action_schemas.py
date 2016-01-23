@@ -46,7 +46,8 @@ Seperate the schemas to different modules: some schemas are for decision making
 """
 
 import math
-import roslib; roslib.load_manifest('minecraft_bot')
+import roslib
+roslib.load_manifest('minecraft_bot')
 import rospy
 from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv, dig_srv
 from opencog.spacetime import SpaceTimeAndAtomSpace
@@ -66,26 +67,29 @@ space_server = SpaceTimeAndAtomSpace().get_space_server()
 try:
     _ros_set_relative_look = rospy.ServiceProxy('set_relative_look', look_srv)
     _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
-    _ros_set_relative_move = rospy.ServiceProxy('set_relative_move', rel_move_srv)
+    _ros_set_relative_move = rospy.ServiceProxy(
+        'set_relative_move', rel_move_srv)
     _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
     _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
-except rospy.ServiceException, e:
-    print "service call failed: %s"% e
+except rospy.ServiceException as e:
+    print "service call failed: %s" % e
+
 
 def is_attractive(atom):
     """judge if atom is attractive enough
     Return: TruthValue(1,1) if it's attractive else TruthValue(0,1)
-    TODO: 
+    TODO:
     Set the sti standard value as argument: For now we set "sti > 1" as condition.
     """
-    #print 'is_attractive'
+    # print 'is_attractive'
     sti = atom.av['sti']
     if sti > 1:
-        #print 'attractive!'
-        return TruthValue(1,1)
+        # print 'attractive!'
+        return TruthValue(1, 1)
     else:
-        #print 'boring'
-        return TruthValue(0,1)
+        # print 'boring'
+        return TruthValue(0, 1)
+
 
 def move_toward_block(block_atom):
     """Make bot move near the block
@@ -107,34 +111,36 @@ def move_toward_block(block_atom):
     cur_map = space_server.get_map(map_handle)
     cur_er = space_server.get_entity_recorder(map_handle)
     block_pos = cur_map.get_block_location(block_atom.h)
-    if block_pos == None:
-        print 'block position not found.',block_atom
-        return TruthValue(0,1)
-    dest = get_near_free_point(atomspace, cur_map, block_pos, 2, (1,0,0), True)
+    if block_pos is None:
+        print 'block position not found.', block_atom
+        return TruthValue(0, 1)
+    dest = get_near_free_point(
+        atomspace, cur_map, block_pos, 2, (1, 0, 0), True)
 
-    if dest == None:
+    if dest is None:
         print 'get_no_free_point'
     print 'block_pos, dest', block_pos, dest
     self_handle = cur_er.get_self_agent_entity()
     self_pos = cur_er.get_last_appeared_location(self_handle)
 
     if (math.floor(self_pos[0]) == dest[0]
-        and math.floor(self_pos[1]) == dest[1]
-        and math.floor(self_pos[2]) == dest[2]):
+            and math.floor(self_pos[1]) == dest[1]
+            and math.floor(self_pos[2]) == dest[2]):
         print 'has arrived there'
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
-        #TODO: In Minecraft the up/down direction is y coord
+        # TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         response = _ros_set_move(block_pos[0], block_pos[1], jump)
         rospy.sleep(1)
         print 'action_schemas: abs_move response', response
         if response.state:
             print 'move success'
-            return TruthValue(1,1)
+            return TruthValue(1, 1)
         else:
             print 'move fail'
-            return TruthValue(0,1)
+            return TruthValue(0, 1)
+
 
 def dig_block(block_atom):
     """ Make the bot mine the block with the currently selected tool until the block is mined out.
@@ -145,13 +151,14 @@ def dig_block(block_atom):
         types.SpaceMapNode, "MCmap")[0]).h
     cur_map = space_server.get_map(map_handle)
     block_pos = cur_map.get_block_location(block_atom.h)
-    if block_pos == None:
-        print 'block position not found.',block_atom
-        return TruthValue(0,1)
+    if block_pos is None:
+        print 'block position not found.', block_atom
+        return TruthValue(0, 1)
     else:
-        #TODO: Flipping y and z positions for ROS to Minecraft convention
+        # TODO: Flipping y and z positions for ROS to Minecraft convention
         response = _ros_set_dig(block_pos[0], block_pos[2], block_pos[1])
         return TruthValue(1, 1)
+
 
 def set_look(pitch_atom, yaw_atom):
     """set look toward the given direction.
@@ -165,9 +172,10 @@ def set_look(pitch_atom, yaw_atom):
     yaw = float(yaw_atom.name)
     response = _ros_set_look(yaw, pitch)
     if response == True:
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
+        return TruthValue(0, 1)
+
 
 def set_relative_look(pitch_atom, yaw_atom):
     """set relative look toward the given direction.
@@ -184,10 +192,11 @@ def set_relative_look(pitch_atom, yaw_atom):
     yaw = float(yaw_atom.name)
     response = _ros_set_relative_look(pitch, yaw)
     if response == True:
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
-            
+        return TruthValue(0, 1)
+
+
 def set_relative_move(yaw_atom, dist_atom, jump_atom):
     """set relative move toward the given direction.
     The bot will move toward the yaw direction in input distance.
@@ -213,6 +222,6 @@ def set_relative_move(yaw_atom, dist_atom, jump_atom):
     response = _ros_set_relative_move(yaw, dist, jump)
     print 'set_rel_move: yaw, dist, jump, res', yaw, dist, jump, response
     if response == True:
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
+        return TruthValue(0, 1)

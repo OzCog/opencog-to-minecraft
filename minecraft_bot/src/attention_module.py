@@ -15,11 +15,12 @@ TODO:
 """
 from opencog.type_constructors import *
 from opencog.bindlink import bindlink
-from opencog.atomspace import types,get_refreshed_types
-import opencog.spacetime #for import spacetime atom types
+from opencog.atomspace import types, get_refreshed_types
+import opencog.spacetime  # for import spacetime atom types
 from opencog.type_constructors import *
 from opencog.atomspace import Atom
-types = get_refreshed_types() #must do so or types will miss spacetime types
+types = get_refreshed_types()  # must do so or types will miss spacetime types
+
 
 class AttentionController:
     """Used for simply control the attention value of atoms
@@ -27,6 +28,7 @@ class AttentionController:
     Arg:
         atomspace(opencog.atomspace.AtomSpace): atomspace in the main loop
     """
+
     def __init__(self, atomspace):
         self._atomspace = atomspace
 
@@ -76,12 +78,12 @@ class AttentionController:
         for eval_link in all_eval_links:
             atom = eval_link.out[1]
             cur_sti = atom.av['sti']
-            #print cur_sti
+            # print cur_sti
             self._atomspace.set_av(atom.h, sti=cur_sti + 5)
-            #print atom
+            # print atom
             self._atomspace.remove(eval_link)
         print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
             self._atomspace.set_av(block.h, sti=cur_sti - 1)
-            #print block
+            # print block

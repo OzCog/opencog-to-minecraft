@@ -20,6 +20,8 @@ from opencog.atomspace import types, TruthValue
 from opencog.type_constructors import *
 from opencog.bindlink import bindlink, evaluate_atom
 from opencog.atomspace import Atom
+
+
 class ActionGenerator:
     """ determining and executing action of Opencog bot in each loop
 
@@ -32,6 +34,7 @@ class ActionGenerator:
     Method:
         generate_action(): generate and execute the action by behavior tree
     """
+
     def __init__(self, atomspace, space_server, time_server):
         self._atomspace = atomspace
         self._space_server = space_server
@@ -102,13 +105,15 @@ class ActionGenerator:
                                       )
                                   ),
                                   EvaluationLink(
-                                     GroundedPredicateNode("py: action_schemas.is_attractive"),
-                                     ListLink(
-                                        VariableNode("$block")
-                                     )
+                                      GroundedPredicateNode(
+                                          "py: action_schemas.is_attractive"),
+                                      ListLink(
+                                          VariableNode("$block")
+                                      )
                                   ),
                                   EvaluationLink(
-                                      GroundedPredicateNode("py: action_schemas.dig_block"),
+                                      GroundedPredicateNode(
+                                          "py: action_schemas.dig_block"),
                                       ListLink(
                                           VariableNode("$block")
                                       )
@@ -116,26 +121,27 @@ class ActionGenerator:
                               ),
                               VariableNode("$block")
                           ).h
-                      )
+                          )
         print "action_gen: result", Atom(result, self._atomspace)
 
         if self._atomspace.get_outgoing(result) == []:
             print "action_gen: no result, random walk."
 
             evaluate_atom(self._atomspace,
-                             EvaluationLink(
-                                 GroundedPredicateNode("py: action_schemas.set_relative_move"),
-                                 ListLink(
-                                     RandomChoiceLink(
-                                         NumberNode("0"),
-                                         NumberNode("90"),
-                                         NumberNode("180"),
-                                         NumberNode("270"),
-                                         ),
-                                     NumberNode("1"),
-                                     ConceptNode("jump")
-                                 )
-                             )
-                         )
+                          EvaluationLink(
+                              GroundedPredicateNode(
+                                  "py: action_schemas.set_relative_move"),
+                              ListLink(
+                                  RandomChoiceLink(
+                                      NumberNode("0"),
+                                      NumberNode("90"),
+                                      NumberNode("180"),
+                                      NumberNode("270"),
+                                  ),
+                                  NumberNode("1"),
+                                  ConceptNode("jump")
+                              )
+                          )
+                          )
 
         print "action_gen end"
