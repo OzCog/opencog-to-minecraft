@@ -12,7 +12,7 @@ currently the ROS message is passed along unmodified. this may need to change la
 import roslib
 roslib.load_manifest('minecraft_bot')
 import rospy
-from minecraft_bot.msg import movement_msg, place_block_msg, mine_block_msg
+from minecraft_bot.msg import movement_msg, place_block_msg, mine_block_msg, health_msg
 from minecraft_bot.msg import chunk_data_msg, chunk_bulk_msg, chunk_meta_msg, block_data_msg
 
 from minecraft_bot.msg import entity_msg, entity_exp_meta, entity_global_meta, entity_mob_meta
@@ -66,7 +66,8 @@ class SpockControlPlugin:
         #ploader.reg_event_handler('cl_login_success', self.sendClientLogin)
         #ploader.reg_event_handler('cl_join_game', self.sendClientJoinGame)
         #ploader.reg_event_handler('cl_spawn_update', self.sendClientSpawnUpdate)
-        #ploader.reg_event_handler('cl_health_update', self.sendClientHealthUpdate)
+        ploader.reg_event_handler(
+            'client_health_update', self.sendClientHealthUpdate)
         ploader.reg_event_handler('client_death', self.sendClientDeathUpdate)
         ploader.reg_event_handler(
             'ros_position_update', self.sendClientPositionUpdate)
@@ -105,7 +106,7 @@ class SpockControlPlugin:
         #self.pub_clinfo_login = rospy.Publisher('client_login_data', position_msg, queue_size = 10)
         #self.pub_clinfo_join = rospy.Publisher('client_join_data', position_msg, queue_size = 10)
         #self.pub_clinfo_spawn = rospy.Publisher('client_spawn_data', position_msg, queue_size = 10)
-        #self.pub_clinfo_health = rospy.Publisher('client_health_data', position_msg, queue_size = 10)
+        self.pub_clinfo_health = rospy.Publisher('client_health_data', position_msg, queue_size = 10)
         self.pub_clinfo_pos = rospy.Publisher(
             'client_position_data', position_msg, queue_size=100)
 
@@ -227,7 +228,11 @@ class SpockControlPlugin:
     def sendClientHealthUpdate(self, name, data):
 
         print "received client health update"
-        print data
+        # Update this in Atomspace
+        msg = health_msg()
+        self.msgr.setMessage(msg, data)
+
+        self.pub_clinfo_health.publish(msg)
 
     def sendClientDeathUpdate(self, name, data):
 
