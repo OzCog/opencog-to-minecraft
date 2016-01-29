@@ -66,6 +66,7 @@ add_message_files(
    entity_painting_meta.msg
    entity_player_meta.msg
    entity_msg.msg
+   health_msg.msg
 
  )
 
