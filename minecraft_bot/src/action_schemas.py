@@ -26,9 +26,9 @@ Note:
    in such a weird way.
 
 Method:
-is_attractive(atom): To judge an atom is attractive enough(sti is large enough).
-move_toward_block(block_atom): move to a place near the input block.
-set_look(pitch_atom, yaw_atom): look toward the given direction.
+is_attractive(atom, sti_std) : Judge an atom is attractive (large sti).
+move_toward_block(block_atom) : move to a place near the input block.
+set_look(pitch_atom, yaw_atom) : look toward the given direction.
 set_relative_look(pitch_atom, yaw_atom): look toward current + given direction.
 set_relative_move(yaw_atom, dist_atom, jump_atom): move toward the given yaw.
 
@@ -75,15 +75,20 @@ except rospy.ServiceException as e:
     print "service call failed: %s" % e
 
 
-def is_attractive(atom):
-    """judge if atom is attractive enough
-    Return: TruthValue(1,1) if it's attractive else TruthValue(0,1)
-    TODO:
-    Set the sti standard value as argument: For now we set "sti > 1" as condition.
+def is_attractive(atom, sti_std=1):
     """
+    Judge if atom is attractive enough
+
+    Args:
+        atom(opencog.atomspace.Atom): The atom to be checked itself.
+        sti_std: Standard sti value against which the atom would be judged.
+
+    Returns: TruthValue(1,1) if it's attractive else TruthValue(0,1)
+    """
+
     # print 'is_attractive'
     sti = atom.av['sti']
-    if sti > 1:
+    if sti > sti_std:
         # print 'attractive!'
         return TruthValue(1, 1)
     else:
@@ -92,18 +97,22 @@ def is_attractive(atom):
 
 
 def move_toward_block(block_atom):
-    """Make bot move near the block
-    If there's no enough surrounding block info,
+    """
+    Make bot move near the block. If there's no surrounding block info,
     the bot may find no place to stand on and stop moving.
     Also if there's no empty place near ( distance <= 2) the block,
     the bot will not move.
-    Arg:
-        block_atom(opencog.atomspace.Atom): The atom representing block
-    Return: TruthValue(1,1) if move success else TruthValue(0,1)
+    Args:
+        block_atom(opencog.atomspace.Atom): The atom representing block,
+                towards which bot is made to move.
+
+    Returns: TruthValue(1,1) if move success else TruthValue(0,1).
+
     TODO:
         Make it faster: the calculation of near place is slow.
         Add distance argument: make caller control the judgement of "near"
     """
+
     print 'move toward atom', block_atom
     jump = False
     map_handle = (atomspace.get_atoms_by_name(
@@ -143,9 +152,18 @@ def move_toward_block(block_atom):
 
 
 def dig_block(block_atom):
-    """ Make the bot mine the block with the currently selected tool until the block is mined out.
     """
-    print 'dig block', block_atom
+    Make the bot mine the block with the currently selected tool until
+    the block is mined out.
+
+    Args:
+        block_atom(opencog.atomspace.Atom): The atom representing block,
+                which the bot has to mine.
+
+    Returns: TruthValue(1,1) if block is mined and TruthValue(0,1) otherwise.
+    """
+
+    print 'Dig block:', block_atom
 
     map_handle = (atomspace.get_atoms_by_name(
         types.SpaceMapNode, "MCmap")[0]).h
@@ -161,13 +179,17 @@ def dig_block(block_atom):
 
 
 def set_look(pitch_atom, yaw_atom):
-    """set look toward the given direction.
-    The look direction will be changed to the diretion we pass.
-    Args:
-        pitch_atom(opencog.atomspace.Atom): A NumberNode representing pitch in degree
-        yaw_atom(opencog.atomspace.Atom): A NumberNode representing yaw in degree
-    Return:  TruthValue(1,1) if set look success else TruthValue(0,1)
     """
+    Set look toward the given direction.
+    The look direction will be changed to the direction passed.
+
+    Args:
+        pitch_atom(opencog.atomspace.Atom): NumberNode representing pitch in degree
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing yaw in degree
+
+    Returns: TruthValue(1,1) if set look success else TruthValue(0,1)
+    """
+
     pitch = float(pitch_atom.name)
     yaw = float(yaw_atom.name)
     response = _ros_set_look(yaw, pitch)
@@ -178,50 +200,56 @@ def set_look(pitch_atom, yaw_atom):
 
 
 def set_relative_look(pitch_atom, yaw_atom):
-    """set relative look toward the given direction.
+    """
+    Set relative look toward the given direction.
     The look will be changed by adding pitch and yaw on current direction.
+
     Args:
-        pitch_atom(opencog.atomspace.Atom):
-            A NumberNode representing relative pitch in degree
-        yaw_atom(opencog.atomspace.Atom):
-            A NumberNode representing relative yaw in degree
-    Return:  TruthValue(1,1) if set look success else TruthValue(0,1)
+        pitch_atom(opencog.atomspace.Atom): NumberNode representing relative
+                pitch in degree
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing relative
+                yaw in degree
+
+    Returns: TruthValue(1,1) if set look success else TruthValue(0,1)
     """
 
     pitch = float(pitch_atom.name)
     yaw = float(yaw_atom.name)
     response = _ros_set_relative_look(pitch, yaw)
-    if response == True:
+    if response is True:
         return TruthValue(1, 1)
     else:
         return TruthValue(0, 1)
 
 
 def set_relative_move(yaw_atom, dist_atom, jump_atom):
-    """set relative move toward the given direction.
+    """
+    Set relative move toward the given direction.
     The bot will move toward the yaw direction in input distance.
     For now the jump_atom is not used. We assume bot will not jump
     during the move.
+
     Args:
-        yaw_atom(opencog.atomspace.Atom):
-            A NumberNode representing yaw in degree
-        dist_atom(opencog.atomspace.Atom):
-            A NumberNode representing distance in Minecraft unit
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing yaw in degree.
+        dist_atom(opencog.atomspace.Atom): NumberNode representing distance in
+                Minecraft unit.
         jump_atom(opencog.atomspace.Atom):
-            not used now, should be used for determining jump or not.
-    Return: TruthValue(1,1) if move success else TruthValue(0,1)
-    TODO:
-        use jump_atom to determine jump or not: We can determine jump
-        or not by checking the TV of jump_atom.
+            The decision of jumping is taken by checking the TV of this atom.
+
+    Returns: TruthValue(1,1) if move success else TruthValue(0,1)
     """
 
     print 'set_rel_move'
     yaw = float(yaw_atom.name)
     dist = float(dist_atom.name)
-    jump = False
+
+    if jump_atom.tv == 1:
+        jump = True
+    else:
+        jump = False
     response = _ros_set_relative_move(yaw, dist, jump)
     print 'set_rel_move: yaw, dist, jump, res', yaw, dist, jump, response
-    if response == True:
+    if response is True:
         return TruthValue(1, 1)
     else:
         return TruthValue(0, 1)
