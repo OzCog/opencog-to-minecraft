@@ -48,7 +48,6 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    vec3_msg.msg
-   dig_msg.msg
    position_msg.msg
    movement_msg.msg
    mine_block_msg.msg
@@ -67,6 +66,7 @@ add_message_files(
    entity_painting_meta.msg
    entity_player_meta.msg
    entity_msg.msg
+   health_msg.msg
 
  )
 

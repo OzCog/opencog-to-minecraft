@@ -1,10 +1,12 @@
 # perception_module.py
-#! /usr/bin/env python2.7 python2 python
+# ! /usr/bin/env python2.7 python2 python
 
-from opencog.atomspace import AtomSpace, Handle, TruthValue, types, get_refreshed_types
+from opencog.atomspace import AtomSpace, Handle, TruthValue, types, \
+    get_refreshed_types
 from opencog.type_constructors import *
 from opencog.cogserver_type_constructors import *
 from opencog.spacetime import SpaceServer, TimeServer
+
 types = get_refreshed_types()  # update spacetime types imported
 from opencog.atomspace import Atom
 from atomspace_util import add_predicate, add_location
@@ -27,10 +29,10 @@ def swap_y_and_z(coord):
 
 
 class PerceptionManager:
-
     def __init__(self, atomspace, space_server, time_server):
-        self._handle_dict = {"client_position_data": self.handle_self_pos_message,
-                             "camera_vis_data": self.handle_vision_message}
+        self._handle_dict = {
+            "client_position_data": self.handle_self_pos_message,
+            "camera_vis_data": self.handle_vision_message}
         self._receiver = ROSPerceptionInterface(self._handle_dict)
         self._atomspace = atomspace
         self._space_server = space_server
@@ -43,7 +45,7 @@ class PerceptionManager:
     def _get_map(self, map_name=default_map_name):
         try:
             map_handle = (self._atomspace.get_atoms_by_name(
-                types.SpaceMapNode, map_name)[0]).h
+                    types.SpaceMapNode, map_name)[0]).h
         except IndexError:
             return None, None
         return map_handle, self._space_server.get_map(map_handle)
@@ -54,7 +56,7 @@ class PerceptionManager:
         # But here we still call it er_handle
         try:
             er_handle = (self._atomspace.get_atoms_by_name(
-                types.SpaceMapNode, er_name)[0]).h
+                    types.SpaceMapNode, er_name)[0]).h
         except IndexError:
             return None, None
         return er_handle, self._space_server.get_entity_recorder(er_handle)
@@ -71,55 +73,92 @@ class PerceptionManager:
             old_block_handle = cur_map.get_block((block.x, block.y, block.z))
             updated_eval_links = []
 
-            # Count how many of each block type we have seen during this vision
-            # frame.
+            # Count how many of each block type we have seen during this vision frame.
+            # Also store the new block material in case it differs from the existing material.
+            # TODO: Use this dict for something or it can be removed, currently
+            # it is created and filled up but not used by anything else.
             block_material = blocks.get_block(
-                block.blockid, block.metadata).display_name
+                    block.blockid, block.metadata).display_name
+
             if block_material in material_dict:
                 material_dict[block_material] += 1
             else:
                 material_dict[block_material] = 1
 
+            # If this is the first time this block has been seen
             if old_block_handle.is_undefined():
+                # Create the block in atomspace and set its initial attention
+                # value.
                 blocknode, updated_eval_links = self._build_block_nodes(
-                    block, map_handle)
+                        block, map_handle)
+                # TODO: Make the 200 a constant, this occurs one other place.
+                self._atomspace.set_av(blocknode.h, 200)
             else:
+                # Block already exists, check to see if it is still the same
+                # type.
                 old_block_type_node = get_predicate(self._atomspace, "material",
-                                                    Atom(old_block_handle, self._atomspace), 1)
+                                                    Atom(old_block_handle,
+                                                         self._atomspace), 1)
                 old_block_type = self._atomspace.get_name(
-                    old_block_type_node.h)
+                        old_block_type_node.h)
                 if old_block_type == block_material:
+                    # Add short term importance to this block since it is in
+                    # the field of view.
+                    cur_sti = self._atomspace.get_av(old_block_handle)['sti']
+                    # TODO: Make these numbers constants.
+                    # TODO: Make the amount added be dependendant on the
+                    # distance to the block.
+                    cur_sti = min(cur_sti + 20, 500)
+                    self._atomspace.set_av(old_block_handle, cur_sti)
                     continue
                 elif block.blockid == 0:
-                    blocknode, updated_eval_links = Atom(
-                        Handle(-1), self._atomspace), []
-                else:
-                    blocknode, updated_eval_links = self._build_block_nodes(block,
-                                                                            map_handle)
+                    # Block used to be solid and is now an air block, remove it
+                    # from the atomspace and mark the old block as being
+                    # disappeared for attention allocation routine to look at.
 
-                # TODO: not sure if we should add disappeared predicate here,
-                # It looks reasonable but make the code more messy..
+                    blocknode, updated_eval_links = Atom(
+                            Handle(-1), self._atomspace), []
+                    disappeared_link = add_predicate(
+                            self._atomspace, "disappeared", Atom(
+                                    old_block_handle, self._atomspace))
+                    updated_eval_links.append(disappeared_link)
+                else:
+                    # NOTE: There is a bit of a bug here since the attention
+                    # value does not increase here, but that is ok because this
+                    # is rare anyway so skipping an increase is no big deal.
+                    blocknode, updated_eval_links = self._build_block_nodes(
+                            block,
+                            map_handle)
+
                 disappeared_link = add_predicate(
-                    self._atomspace, "disappeared", Atom(
-                        old_block_handle, self._atomspace))
+                        self._atomspace, "disappeared", Atom(
+                                old_block_handle, self._atomspace))
                 updated_eval_links.append(disappeared_link)
-            self._space_server.add_map_info(blocknode.h, map_handle, False, False,
+
+            # Add the block to the spaceserver and the timeserver.
+            self._space_server.add_map_info(blocknode.h, map_handle, False,
+                                            False,
                                             block.ROStimestamp,
                                             block.x, block.y, block.z)
             if old_block_handle.is_undefined():
                 self._time_server.add_time_info(
-                    blocknode.h, block.ROStimestamp, "ROS")
+                        blocknode.h, block.ROStimestamp, "ROS")
                 self._time_server.add_time_info(
-                    blocknode.h, block.MCtimestamp, "MC")
+                        blocknode.h, block.MCtimestamp, "MC")
             for link in updated_eval_links:
                 self._time_server.add_time_info(
-                    link.h, block.ROStimestamp, "ROS")
+                        link.h, block.ROStimestamp, "ROS")
                 self._time_server.add_time_info(
-                    link.h, block.MCtimestamp, "MC")
-            # print blocknode
-            # print updated_eval_links
+                        link.h, block.MCtimestamp, "MC")
+                # print blocknode
+                # print updated_eval_links
 
-        # TODO: The code below stores the number of blocks of each type seen in the current field of view into the atomspace.  It is commented out as it should probably not store this until the code to erase old values is also added otherwise this data just piles up as new links from the same root node and it becomes a jumbled mess.
+        # TODO: The code below stores the number of blocks of each type seen in
+        # the current field of view into the atomspace.  It is commented out as
+        # it should probably not store this until the code to erase old values
+        # is also added otherwise this data just piles up as new links from the
+        # same root node and it becomes a jumbled mess.
+
         # print "\nBlock material summary:  saw %s kinds of blocks" %
         # len(material_dict)
         """
@@ -140,7 +179,7 @@ class PerceptionManager:
         _, cur_er = self._get_er()
         old_self_handle = cur_er.get_self_agent_entity()
         self_node, updated_eval_links = self._build_self_pos_node(
-            data, map_handle)
+                data, map_handle)
 
         # TODO: pass timestamp in message
         timestamp = 0
@@ -153,9 +192,9 @@ class PerceptionManager:
         for link in updated_eval_links:
             self._time_server.add_time_info(link.h, timestamp, "ROS")
             self._time_server.add_time_info(link.h, timestamp, "MC")
-        # print self_node
-        # print self._atomspace.get_incoming(self_node.h)
-        # print "handle_self_pos_message_end"
+            # print self_node
+            # print self._atomspace.get_incoming(self_node.h)
+            # print "handle_self_pos_message_end"
 
     def _build_self_pos_node(self, client, map_handle):
         # TODO: for now because we only input self client so we define node name as "self"
@@ -163,7 +202,8 @@ class PerceptionManager:
         client_node = self._atomspace.add_node(types.EntityNode, "self")
         updated_eval_links = []
 
-        at_location_link = add_location(self._atomspace, client_node, map_handle,
+        at_location_link = add_location(self._atomspace, client_node,
+                                        map_handle,
                                         [client.x, client.y, client.z])
         updated_eval_links.append(at_location_link)
 
@@ -174,7 +214,7 @@ class PerceptionManager:
 
         yaw_node = self._atomspace.add_node(types.NumberNode, str(client.yaw))
         pitch_node = self._atomspace.add_node(
-            types.NumberNode, str(client.pitch))
+                types.NumberNode, str(client.pitch))
         look_link = add_predicate(self._atomspace, "look",
                                   client_node, yaw_node, pitch_node)
         updated_eval_links.append(look_link)
@@ -189,7 +229,8 @@ class PerceptionManager:
         # entity node to represent entity
 
         obj_node = self._atomspace.add_node(types.StructureNode,
-                                            "obj%s" % (self._build_block_nodes.__func__.objNo))
+                                            "obj%s" % (
+                                                self._build_block_nodes.__func__.objNo))
         self._build_block_nodes.__func__.objNo += 1
         updated_eval_links = []
 
@@ -198,8 +239,8 @@ class PerceptionManager:
         updated_eval_links.append(at_location_link)
 
         type_node = self._atomspace.add_node(
-            types.ConceptNode, blocks.get_block(
-                block.blockid, block.metadata).display_name)
+                types.ConceptNode, blocks.get_block(
+                        block.blockid, block.metadata).display_name)
         material_link = add_predicate(self._atomspace, "material",
                                       obj_node, type_node)
         updated_eval_links.append(material_link)
@@ -212,43 +253,45 @@ class PerceptionManager:
 
     def _build_entity_node(self, entity, map_handle):
         entity_node = self._atomspace.add_node(
-            types.EntityNode, str(entity.eid))
+                types.EntityNode, str(entity.eid))
         updated_eval_links = []
 
-        at_location_link = add_location(self._atomspace, entity_node, map_handle,
+        at_location_link = add_location(self._atomspace, entity_node,
+                                        map_handle,
                                         [entity.x, entity.y, entity.z])
         updated_eval_links.append(at_location_link)
 
         type_node = self._atomspace.add_node(
-            types.ConceptNode, str(entity.mob_type))
+                types.ConceptNode, str(entity.mob_type))
         type_link = add_predicate(self._atomspace, "entitytype",
                                   entity_node, type_node)
         updated_eval_links.append(type_link)
 
         yaw_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.head_yaw))
+                types.NumberNode, str(entity.head_yaw))
         pitch_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.head_pitch))
+                types.NumberNode, str(entity.head_pitch))
         look_link = add_predicate(self._atomspace, "look",
                                   entity_node, yaw_node, pitch_node)
         updated_eval_links.append(look_link)
 
         length_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.length))
+                types.NumberNode, str(entity.length))
         width_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.width))
+                types.NumberNode, str(entity.width))
         height_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.height))
+                types.NumberNode, str(entity.height))
         sizelink = add_predicate(self._atomspace, "size",
-                                 entity_node, length_node, width_node, height_node)
+                                 entity_node, length_node, width_node,
+                                 height_node)
         updated_eval_links.append(sizelink)
 
         v_x_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.velocity_x))
+                types.NumberNode, str(entity.velocity_x))
         v_y_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.velocity_y))
+                types.NumberNode, str(entity.velocity_y))
         v_z_node = self._atomspace.add_node(
-            types.NumberNode, str(entity.velocity_z))
+                types.NumberNode, str(entity.velocity_z))
         velocitylink = add_predicate(self._atomspace, "velocity",
                                      entity_node, v_x_node, v_y_node, v_z_node)
         updated_eval_links.append(velocitylink)
