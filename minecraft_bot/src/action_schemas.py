@@ -55,25 +55,6 @@ from opencog.spatial import get_near_free_point
 from opencog.atomspace import types, TruthValue
 from opencog.type_constructors import *
 
-rospy.wait_for_service('set_relative_look')
-rospy.wait_for_service('set_look')
-rospy.wait_for_service('set_relative_move')
-rospy.wait_for_service('set_move')
-rospy.wait_for_service('set_dig')
-
-atomspace = SpaceTimeAndAtomSpace().get_atomspace()
-space_server = SpaceTimeAndAtomSpace().get_space_server()
-
-try:
-    _ros_set_relative_look = rospy.ServiceProxy('set_relative_look', look_srv)
-    _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
-    _ros_set_relative_move = rospy.ServiceProxy(
-        'set_relative_move', rel_move_srv)
-    _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
-    _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
-except rospy.ServiceException as e:
-    print "service call failed: %s" % e
-
 
 def is_attractive(atom, sti_std=1):
     """
@@ -269,3 +250,25 @@ def set_relative_move(yaw_atom, dist_atom, jump_atom):
         return TruthValue(1, 1)
     else:
         return TruthValue(0, 1)
+
+
+if __name__ == '__main__':
+
+    rospy.wait_for_service('set_relative_look')
+    rospy.wait_for_service('set_look')
+    rospy.wait_for_service('set_relative_move')
+    rospy.wait_for_service('set_move')
+    rospy.wait_for_service('set_dig')
+
+    atomspace = SpaceTimeAndAtomSpace().get_atomspace()
+    space_server = SpaceTimeAndAtomSpace().get_space_server()
+
+    try:
+        _ros_set_relative_look = rospy.ServiceProxy('set_relative_look', look_srv)
+        _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
+        _ros_set_relative_move = rospy.ServiceProxy(
+            'set_relative_move', rel_move_srv)
+        _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
+        _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
+    except rospy.ServiceException as e:
+        print "service call failed: %s" % e
