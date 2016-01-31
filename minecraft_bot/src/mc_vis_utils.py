@@ -2,16 +2,18 @@
 
 """
 created by Bradley Sheneman
-calculates set of visible blocks for a givent client position pitch and yaw (head)
+Calculates set of visible blocks for given client position pitch and yaw (head)
 """
 
 import roslib
+
 roslib.load_manifest('minecraft_bot')
 import rospy
+
 from minecraft_bot.srv import get_block_multi_srv
 from minecraft_bot.msg import map_block_msg, vec3_msg
 
-from math import sin, cos, radians, pi, floor
+import math
 import numpy as np
 from sys import argv
 import time
@@ -81,42 +83,49 @@ def init_block_mats():
 
 
 def is_solid(blockid):
-    """ Returns whether a block with a given blockid is solid (True if light
-    does not pass through it).
+    """
+    Returns whether a block with a given blockid is solid (True if light does
+    not pass through it).
+
+    Args:
+        blockid: ID of the block to be tested
+
+    Returns: True or False boolean depending upon the block.
+
     """
 
     # print blockid
-    if block_mats[blockid] == True:
+    if block_mats[blockid]:
         return True
 
     return False
 
 
 def calc_ray_step(pitch, yaw, dist):
-    """ Returns the cartesian distance vector (dx, dy, dz) which is equivalent
-    to the radial (pitch, yaw, dist) vector passed to the function.
     """
+    Takes in the coordinates as per spherical coordinate system and converts
+    them to rectangular cartesian coordinate system.
 
-    pt = radians(pitch)
-    yw = radians(yaw)
+    Args:
+        pitch: Angle made with the horizontal plane of vision in degrees.
+        yaw: Angle made with the vertical plane through the head in degrees.
+        dist: Radial Distance from the position of the bot.
 
-    # NOTE: This code could be rewritten without the if statement in a totally
-    # deterministic way.  Avoiding the branching here would make the code a bit
-    # more complicated but also faster.  This may be worth doing here since this
-    # code gets executed many times in every single vision cycle.
-    #
-    # NOTE: In either branch of the function cos(pt) is computed twice.
-    # Calling it once and storing the result to use for the second call also
-    # complicates the code a bit but speeds the function up further since trig
-    # computations are actually fairly expensive.
-    if pt < pi / 2 and pt > -pi / 2:
-        dx = -(dist * cos(pt)) * sin(yw)
-        dz = (dist * cos(pt)) * cos(yw)
-    else:
-        dx = (dist * cos(pt)) * sin(yw)
-        dz = -(dist * cos(pt)) * cos(yw)
+    Returns:
+        Cartesian distance vector (dx, dy, dz) equivalent to the radial vector
+        passed to the function.
+    """
+    rad_pitch = math.radians(pitch)
+    rad_yaw = math.radians(yaw)
 
-    dy = -dist * sin(pt)
+    abs_cospitch = math.fabs(math.cos(rad_pitch))
+    sinpitch = math.sin(rad_pitch)
+    cosyaw = math.cos(rad_yaw)
+    sinyaw = math.sin(rad_yaw)
+
+    dx = -dist * abs_cospitch * sinyaw
+    dy = -dist * sinpitch
+    dz = dist * abs_cospitch * cosyaw
 
     return dx, dy, dz
 
@@ -124,18 +133,26 @@ def calc_ray_step(pitch, yaw, dist):
 def create_vec3_msg(coords, step, num_steps):
     msg = vec3_msg()
 
-    msg.x = floor(coords[0] + step[0] * num_steps)
-    msg.y = floor(coords[1] + step[1] * num_steps)
-    msg.z = floor(coords[2] + step[2] * num_steps)
-
-    # print "x: %d, y: %d, z: %d"%(msg.x, msg.y, msg.z)
+    msg.x = math.floor(coords[0] + step[0] * num_steps)
+    msg.y = math.floor(coords[1] + step[1] * num_steps)
+    msg.z = math.floor(coords[2] + step[2] * num_steps)
 
     return msg
 
 
 def get_coordinates_in_range(x, y, z, pitch, yaw):
-    """ Returns a list of all possible blocks which could be seen by the bot,
+    """
+    Returns a list of all possible blocks which could be seen by the bot,
     given the max vision range and the vision skip distance in each dimension.
+    Args:
+        x: X-coordinate of the position of bot in minecraft world.
+        y: Y-coordinate of the position of bot in minecraft world.
+        z: Z-coordinate of the position of bot in minecraft world.
+        pitch: Angle made with the horizontal plane of vision in degrees.
+        yaw: Angle made with the vertical plane through the head in degrees.
+
+    Returns:
+        all_coords: List of all possible blocks visible by the bot.
     """
 
     pit_range = np.arange(pitch - R_PITCH, pitch + R_PITCH + D_PITCH, D_PITCH)
@@ -152,17 +169,24 @@ def get_coordinates_in_range(x, y, z, pitch, yaw):
 
 
 def get_visible_blocks(blocks):
-    """ Takes a list of all possible blocks which could be seen by the bot and
+    """
+    Takes a list of all possible blocks which could be seen by the bot and
     returns a list of which ones are actually real blocks (meaning: not air) in
     the Minecraft world and in a place that is visible to the bot.
+
+    Args:
+        blocks: List of all visible blocks by the bot.
+
+    Returns:
+        vis_blocks_list: List of all real visible blocks.
     """
 
-    #start = time.time()
+    # start = time.time()
     vis_blocks = {}
 
     p_jump = int((2 * R_PITCH) / D_PITCH) + 1
     y_jump = int((2 * R_YAW) / D_YAW) + 1
-    d_jump = int((MAX_DIST) / D_DIST) + 1
+    d_jump = int(MAX_DIST / D_DIST) + 1
 
     blocks3D = np.reshape(np.array(blocks), (p_jump, y_jump, d_jump))
 
@@ -176,7 +200,7 @@ def get_visible_blocks(blocks):
                 # print xyz
                 bid = block.blockid
 
-                if (bid == 0):
+                if bid == 0:
                     # print "found air, continuing..."
                     continue
 
@@ -197,7 +221,7 @@ def get_visible_blocks(blocks):
 
     vis_blocks_list = vis_blocks.values()
 
-    #end = time.time()
+    # end = time.time()
     # print "total: %f"%(end-start)
 
     return vis_blocks_list
