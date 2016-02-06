@@ -16,7 +16,7 @@ from spockextras.plugins.helpers.SpockControl import SpockControlPlugin
 from spockextras.plugins.helpers.Messenger import MessengerPlugin
 from spockextras.plugins.helpers.SendMapData import SendMapDataPlugin
 from spockextras.plugins.helpers.SendEntityData import SendEntityDataPlugin
-
+from spockextras.plugins.helpers.NewInventory import InventoryPlugin
 
 
 # Configure settings
@@ -34,6 +34,9 @@ plugins.append(('NewMovement', NewMovementPlugin))
 plugins.append(('SendMapData', SendMapDataPlugin))
 plugins.append(('SendEntityData', SendEntityDataPlugin))
 plugins.append(('SpockControl', SpockControlPlugin))
+plugins.append(('NewInventory', InventoryPlugin))
+
+
 
 # Chose minecraft server
 hostname = "localhost"
@@ -48,4 +51,6 @@ print("Connecting to {} server on port 25565".format(hostname))
 # Create and start client
 # client.start() with no arguments will automatically connect to localhost
 client = Client(plugins = plugins, settings = settings)
+
 client.start(hostname, 25565)
+
