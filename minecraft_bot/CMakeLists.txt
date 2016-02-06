@@ -67,7 +67,8 @@ add_message_files(
    entity_player_meta.msg
    entity_msg.msg
    health_msg.msg
-
+   inventory_msg.msg
+   slot_msg.msg
  )
 
 ## Generate services in the 'srv' folder
