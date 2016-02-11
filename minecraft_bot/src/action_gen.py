@@ -22,6 +22,8 @@ from opencog.bindlink import bindlink, evaluate_atom
 from opencog.atomspace import Atom
 
 import random
+
+
 class ActionGenerator:
     """ determining and executing action of Opencog bot in each loop
 
@@ -34,6 +36,7 @@ class ActionGenerator:
     Method:
         generate_action(): generate and execute the action by behavior tree
     """
+
     def __init__(self, atomspace, space_server, time_server):
         self._atomspace = atomspace
         self._space_server = space_server
@@ -41,7 +44,7 @@ class ActionGenerator:
         self.steps_since_goal_change = 1
 
     def generate_action(self):
-        #TODO: This documantation is outdated.
+        # TODO: This documantation is outdated.
         """ generate and execute the action by behavior tree
 
         Now (20150822) we generate action by such a behavior tree:
@@ -90,28 +93,28 @@ class ActionGenerator:
 
         # Read the current goal from atomspace
         goal = bindlink(self._atomspace,
-            BindLink(
-                VariableList(
-                    TypedVariableLink(
-                        VariableNode("$goal"),
-                        TypeNode("ConceptNode")
-                    ),
-                ),
+                        BindLink(
+                            VariableList(
+                                TypedVariableLink(
+                                    VariableNode("$goal"),
+                                    TypeNode("ConceptNode")
+                                ),
+                            ),
 
-                Link(
-                    ConceptNode("CURRENT_GOAL"),
-                    VariableNode("$goal")
-                ),
-                VariableNode("$goal")
-            ).h
-        )
+                            Link(
+                                ConceptNode("CURRENT_GOAL"),
+                                VariableNode("$goal")
+                            ),
+                            VariableNode("$goal")
+                        ).h
+                        )
 
         goal_name = Atom(goal, self._atomspace).out[0].name
         print "goal_name: ", goal_name
 
-        ########################################################################
-        #                           Main Action Tree                           
-        ########################################################################
+        #######################################################################
+        #                           Main Action Tree
+        #######################################################################
         # This if - elif chain is the main action generation code for the bot.
         # The chain of if statements here branches off of the currently
         # selected goal.  Inside each if block is code which should further
@@ -127,49 +130,51 @@ class ActionGenerator:
             # just the base wood type (i.e. what trees are made out of, not planks,
             # slabs, buttons, etc).
             result = bindlink(self._atomspace,
-                          BindLink(
-                              VariableList(
-                                  TypedVariableLink(
-                                      VariableNode("$block"),
-                                      TypeNode("StructureNode")
-                                  ),
-                                  TypedVariableLink(
-                                      VariableNode("$material"),
-                                      TypeNode("ConceptNode")
-                                  ),
-                              ),
-
-                              AndLink(
-                                  EvaluationLink(
-                                      PredicateNode("material"),
-                                      ListLink(
+                              BindLink(
+                                  VariableList(
+                                      TypedVariableLink(
                                           VariableNode("$block"),
-                                          VariableNode("$material")
-                                      )
-                                  ),
-                                  EvaluationLink(
-                                      PredicateNode("be"),
-                                      ListLink(
+                                          TypeNode("StructureNode")
+                                      ),
+                                      TypedVariableLink(
                                           VariableNode("$material"),
-                                          ConceptNode("WOOD_BLOCK")
+                                          TypeNode("ConceptNode")
+                                      ),
+                                  ),
+
+                                  AndLink(
+                                      EvaluationLink(
+                                          PredicateNode("material"),
+                                          ListLink(
+                                              VariableNode("$block"),
+                                              VariableNode("$material")
+                                          )
+                                      ),
+                                      EvaluationLink(
+                                          PredicateNode("be"),
+                                          ListLink(
+                                              VariableNode("$material"),
+                                              ConceptNode("WOOD_BLOCK")
+                                          )
+                                      ),
+                                      EvaluationLink(
+                                          GroundedPredicateNode(
+                                              "py: action_schemas.is_attractive"),
+                                          ListLink(
+                                              VariableNode("$block")
+                                          )
+                                      ),
+                                      EvaluationLink(
+                                          GroundedPredicateNode(
+                                              "py: action_schemas.dig_block"),
+                                          ListLink(
+                                              VariableNode("$block")
+                                          )
                                       )
                                   ),
-                                  EvaluationLink(
-                                     GroundedPredicateNode("py: action_schemas.is_attractive"),
-                                     ListLink(
-                                        VariableNode("$block")
-                                     )
-                                  ),
-                                  EvaluationLink(
-                                      GroundedPredicateNode("py: action_schemas.dig_block"),
-                                      ListLink(
-                                          VariableNode("$block")
-                                      )
-                                  )
-                              ),
-                              VariableNode("$block")
-                          ).h
-                      )
+                                  VariableNode("$block")
+                              ).h
+                              )
             print "action_gen: result", Atom(result, self._atomspace)
 
             # If we sucessfully mined out a block of wood we have been very
@@ -188,29 +193,30 @@ class ActionGenerator:
             # Choose a random direction and walk a short distance in that direction and
             # either execute a normal walk or a walk + jump in that direction.
             evaluate_atom(self._atomspace,
-                             EvaluationLink(
-                                 GroundedPredicateNode("py: action_schemas.set_relative_move"),
-                                 ListLink(
-                                     RandomChoiceLink(
-                                         NumberNode("0"),
-                                         NumberNode("45"),
-                                         NumberNode("90"),
-                                         NumberNode("135"),
-                                         NumberNode("180"),
-                                         NumberNode("225"),
-                                         NumberNode("270"),
-                                         NumberNode("315"),
-                                         ),
-                                     RandomChoiceLink(
-                                         NumberNode("1"),
-                                         NumberNode("2"),
-                                         NumberNode("3"),
-                                         NumberNode("4"),
-                                         ),
-                                     ConceptNode("jump")
-                                 )
-                             )
-                         )
+                          EvaluationLink(
+                              GroundedPredicateNode(
+                                  "py: action_schemas.set_relative_move"),
+                              ListLink(
+                                  RandomChoiceLink(
+                                      NumberNode("0"),
+                                      NumberNode("45"),
+                                      NumberNode("90"),
+                                      NumberNode("135"),
+                                      NumberNode("180"),
+                                      NumberNode("225"),
+                                      NumberNode("270"),
+                                      NumberNode("315"),
+                                  ),
+                                  RandomChoiceLink(
+                                      NumberNode("1"),
+                                      NumberNode("2"),
+                                      NumberNode("3"),
+                                      NumberNode("4"),
+                                  ),
+                                  ConceptNode("jump")
+                              )
+                          )
+                          )
 
             goal_success_rate = 1.0
 
@@ -221,19 +227,20 @@ class ActionGenerator:
             # Choose a random direction and walk 1 block in that direction and
             # either execute a normal walk or a walk + jump in that direction.
             evaluate_atom(self._atomspace,
-                             EvaluationLink(
-                                 GroundedPredicateNode("py: action_schemas.set_relative_look"),
-                                 ListLink(
-                                     RandomChoiceLink(
-                                         NumberNode("0"),
-                                         NumberNode("90"),
-                                         NumberNode("180"),
-                                         NumberNode("270"),
-                                         ),
-                                     NumberNode("0")
-                                 )
-                             )
-                         )
+                          EvaluationLink(
+                              GroundedPredicateNode(
+                                  "py: action_schemas.set_relative_look"),
+                              ListLink(
+                                  RandomChoiceLink(
+                                      NumberNode("0"),
+                                      NumberNode("90"),
+                                      NumberNode("180"),
+                                      NumberNode("270"),
+                                  ),
+                                  NumberNode("0")
+                              )
+                          )
+                          )
 
             goal_success_rate = 0.5
 
@@ -248,40 +255,46 @@ class ActionGenerator:
         # should keep doing the same thing in the next time step.
         print "It has been %s time steps since the goal was changed." % self.steps_since_goal_change
 
-        # Make it more and more likely to change the current goal depending on how long we have been on the current goal.
-        if random.normalvariate(0.0, 1.0) >= 1.5 - 0.1*self.steps_since_goal_change + 0.1*goal_success_rate:
+        # Make it more and more likely to change the current goal depending on
+        # how long we have been on the current goal.
+        if random.normalvariate(0.0, 1.0) >= 1.5 - 0.1 * \
+                self.steps_since_goal_change + 0.1 * goal_success_rate:
             print "\n\n\n\t\t\tChanging current goal\n\n\n"
             self.steps_since_goal_change = 1
 
             # Get the full list of all the goals in the atomspace
             goal_atoms = bindlink(self._atomspace,
-                BindLink(
-                    TypedVariableLink(
-                        VariableNode("$goal"),
-                        TypeNode("ConceptNode")
-                    ),
-                    EvaluationLink(
-                        PredicateNode("be"),
-                        ListLink(
-                            ConceptNode("GOAL"),
-                            VariableNode("$goal")
-                        ),
-                    ),
-                    VariableNode("$goal")
-                ).h)
+                                  BindLink(
+                                      TypedVariableLink(
+                                          VariableNode("$goal"),
+                                          TypeNode("ConceptNode")
+                                      ),
+                                      EvaluationLink(
+                                          PredicateNode("be"),
+                                          ListLink(
+                                              ConceptNode("GOAL"),
+                                              VariableNode("$goal")
+                                          ),
+                                      ),
+                                      VariableNode("$goal")
+                                  ).h)
             goal_atoms_list = Atom(goal_atoms, self._atomspace).out
-            #print "All goals: ", goal_atoms_list
+            # print "All goals: ", goal_atoms_list
 
-            #TODO: This should be done in atomese.
-            random_goal = goal_atoms_list[random.randint(0, len(goal_atoms_list)-1)]
+            # TODO: This should be done in atomese.
+            random_goal = goal_atoms_list[
+                random.randint(0, len(goal_atoms_list) - 1)]
             print "Random goal: ", random_goal
 
             # delete the existing CURRENT_GOAL link and then
             # create a new one pointing to the newly chosen goal.
-            self._atomspace.remove(Link(ConceptNode("CURRENT_GOAL"), ConceptNode(goal_name)))
-            self._atomspace.add_link(types.Link, (ConceptNode("CURRENT_GOAL"), random_goal))
+            self._atomspace.remove(
+                Link(
+                    ConceptNode("CURRENT_GOAL"),
+                    ConceptNode(goal_name)))
+            self._atomspace.add_link(
+                types.Link, (ConceptNode("CURRENT_GOAL"), random_goal))
         else:
             self.steps_since_goal_change += 1
-
 
         print "action_gen end"

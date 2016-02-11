@@ -18,9 +18,8 @@ from spockextras.plugins.helpers.SendMapData import SendMapDataPlugin
 from spockextras.plugins.helpers.SendEntityData import SendEntityDataPlugin
 
 
-
 # Configure settings
-settings = {'start': {'username': 'Bot',},
+settings = {'start': {'username': 'Bot', },
             'auth': {'authenticated': False, 'online_mode': False},
             }
 
@@ -47,5 +46,5 @@ print("Connecting to {} server on port 25565".format(hostname))
 
 # Create and start client
 # client.start() with no arguments will automatically connect to localhost
-client = Client(plugins = plugins, settings = settings)
+client = Client(plugins=plugins, settings=settings)
 client.start(hostname, 25565)

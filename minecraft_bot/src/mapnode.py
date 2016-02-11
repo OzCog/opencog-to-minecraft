@@ -6,7 +6,8 @@ Created by Bradley Sheneman
 Provides a client/server api for Minecraft world data
 """
 
-import roslib; roslib.load_manifest('minecraft_bot')
+import roslib
+roslib.load_manifest('minecraft_bot')
 import rospy
 from minecraft_bot.msg import chunk_data_msg, chunk_bulk_msg, chunk_meta_msg, block_data_msg, map_block_msg
 from minecraft_bot.srv import get_block_srv, get_block_multi_srv
@@ -18,9 +19,9 @@ from spockbot import mcdata
 
 import time
 
-DIMENSION_NETHER    = -0x01
-DIMENSION_OVERWORLD =  0x00
-DIMENSION_END       =  0x01
+DIMENSION_NETHER = -0x01
+DIMENSION_OVERWORLD = 0x00
+DIMENSION_END = 0x01
 
 
 # modified from class 'Dimension' in smpmap.py from spock
@@ -33,22 +34,22 @@ class MinecraftMap(object):
         self.dimension = dimension
         self.columns = {}
 
-
     def handle_unpack_bulk(self, data):
 
-        #print "unpacking bulk"
+        # print "unpacking bulk"
         skylight = data.sky_light
         bbuff = BoundBuffer(data.data)
 
-        #print "light: %s: buffer:"%skylight
-        #print bbuff
+        # print "light: %s: buffer:"%skylight
+        # print bbuff
 
         for meta in data.metadata:
             chunk_x = meta.chunk_x
             chunk_z = meta.chunk_z
             mask = meta.primary_bitmap
 
-            #print "unpacking chunk meta x: %d, z: %d, mask: %d"%(chunk_x, chunk_z, mask)
+            # print "unpacking chunk meta x: %d, z: %d, mask: %d"%(chunk_x,
+            # chunk_z, mask)
 
             key = (chunk_x, chunk_z)
 
@@ -56,8 +57,6 @@ class MinecraftMap(object):
                 self.columns[key] = smpmap.ChunkColumn()
 
             self.columns[key].unpack(bbuff, mask, skylight)
-
-
 
     def handle_unpack_chunk(self, data):
 
@@ -79,13 +78,13 @@ class MinecraftMap(object):
 
         self.columns[key].unpack(bbuff, mask, skylight, continuous)
 
-        #print "unpacking chunk full x: %d, z: %d, mask: %d, cont: %s"%(chunk_x, chunk_z, mask, continuous)
-        #print "light: %d, buffer:"%skylight
-        #print bbuff
+        # print "unpacking chunk full x: %d, z: %d, mask: %d, cont: %s"%(chunk_x, chunk_z, mask, continuous)
+        # print "light: %d, buffer:"%skylight
+        # print bbuff
 
     def handle_unpack_block(self, data):
 
-        #becomes (chunk number, offset in chunk)
+        # becomes (chunk number, offset in chunk)
         x, rx = divmod(data.x, 16)
         y, ry = divmod(data.y, 16)
         z, rz = divmod(data.z, 16)
@@ -93,22 +92,22 @@ class MinecraftMap(object):
         if y > 0x0F:
             return
 
-        if (x,z) in self.columns:
-            column = self.columns[(x,z)]
+        if (x, z) in self.columns:
+            column = self.columns[(x, z)]
         else:
             column = smpmap.ChunkColumn()
-            self.columns[(x,z)] = column
+            self.columns[(x, z)] = column
 
         chunk = column.chunks[y]
 
-        if chunk == None:
+        if chunk is None:
             chunk = smpmap.Chunk()
             column.chunks[y] = chunk
 
         chunk.block_data.set(rx, ry, rz, data.data)
 
-        #print "unpacking block x: %d, y: %d, z: %d, data: %d"%(data.x, data.y, data.z, data.data)
-
+        # print "unpacking block x: %d, y: %d, z: %d, data: %d"%(data.x,
+        # data.y, data.z, data.data)
 
     # note, returns block ID and meta in the same byte (data) for consistency
     def get_block(self, x, y, z):
@@ -121,16 +120,15 @@ class MinecraftMap(object):
         if (x, z) not in self.columns or y > 0x0F:
             return 0, 0
 
-        column = self.columns[(x,z)]
+        column = self.columns[(x, z)]
         chunk = column.chunks[y]
 
-        if chunk == None:
+        if chunk is None:
             return 0, 0
 
         data = chunk.block_data.get(rx, ry, rz)
 
-        return data >> 4, data&0x0F
-
+        return data >> 4, data & 0x0F
 
     def get_light(self, x, y, z):
 
@@ -141,14 +139,14 @@ class MinecraftMap(object):
         if (x, z) not in self.columns or y > 0x0F:
             return 0, 0
 
-        column = self.columns[(x,z)]
+        column = self.columns[(x, z)]
         chunk = column.chunks[y]
 
-        if chunk == None:
+        if chunk is None:
             return 0, 0
 
-        return chunk.light_block.get(rx,ry,rz), chunk.light_sky.get(rx,ry,rz)
-
+        return chunk.light_block.get(
+            rx, ry, rz), chunk.light_sky.get(rx, ry, rz)
 
     # y is just a dummy variable, for consistency of the API
     def get_biome(self, x, y, z):
@@ -160,13 +158,12 @@ class MinecraftMap(object):
         x, rx = divmod(x, 16)
         z, rz = divmod(z, 16)
 
-        if (x,z) not in self.columns:
+        if (x, z) not in self.columns:
             return 0
 
-        return self.columns[(x,z)].biome.get(rx, rz)
+        return self.columns[(x, z)].biome.get(rx, rz)
 
-
-    def set_light(self, x, y, z, light_block = None, light_sky = None):
+    def set_light(self, x, y, z, light_block=None, light_sky=None):
         """ Sets the light level for the block at the given coordinates to the
         specified values.  If light_block or light_sky are not set in the
         function call then the respective light values will not be set.
@@ -181,7 +178,7 @@ class MinecraftMap(object):
         if y > 0x0F:
             return
 
-        if (x,z) in self.columns:
+        if (x, z) in self.columns:
             column = self.columns[(x, z)]
         else:
             column = smpmap.ChunkColumn()
@@ -189,27 +186,26 @@ class MinecraftMap(object):
 
         chunk = column.chunks[y]
 
-        if chunk == None:
+        if chunk is None:
             chunk = smpmap.Chunk()
             column.chunks[y] = chunk
 
-        if light_block != None:
-            chunk.light_block.set(rx, ry, rz, light_block&0xF)
+        if light_block is not None:
+            chunk.light_block.set(rx, ry, rz, light_block & 0xF)
 
-        if light_sky != None:
-            chunk.light_sky.set(rx, ry, rz, light_sky&0xF)
-
+        if light_sky is not None:
+            chunk.light_sky.set(rx, ry, rz, light_sky & 0xF)
 
     def set_biome(self, x, z, data):
 
         x, rx = divmod(x, 16)
         z, rz = divmod(z, 16)
 
-        if (x,z) in self.columns:
-            column = self.columns[(x,z)]
+        if (x, z) in self.columns:
+            column = self.columns[(x, z)]
         else:
             column = smpmap.ChunkColumn()
-            self.columns[(x,z)] = column
+            self.columns[(x, z)] = column
 
         return column.biome.set(rx, rz, data)
 
@@ -229,11 +225,12 @@ def get_block(req):
     msg.z = req.z
 
     msg.blockid, msg.metadata = world.get_block(msg.x, msg.y, msg.z)
-    #print msg
+    # print msg
 
     #end = time.time()
-    #print"call to getBlock(): %f"%(end-start)
+    # print"call to getBlock(): %f"%(end-start)
     return msg
+
 
 def get_block_multi(req):
     """ Queries the Minecraft map multiple times (once for each block in the
@@ -248,10 +245,10 @@ def get_block_multi(req):
         msg.y = req_msg.y
         msg.z = req_msg.z
         msg.blockid, msg.metadata = world.get_block(msg.x, msg.y, msg.z)
-        #print msg
+        # print msg
         blocks.append(msg)
 
-    #print type(blocks)
+    # print type(blocks)
     return {'blocks': blocks}
 
 
@@ -266,7 +263,10 @@ if __name__ == "__main__":
     rospy.Subscriber('block_data', block_data_msg, world.handle_unpack_block)
 
     srv_block = rospy.Service('get_block_data', get_block_srv, get_block)
-    srv_block_multi = rospy.Service('get_block_multi', get_block_multi_srv, get_block_multi)
+    srv_block_multi = rospy.Service(
+        'get_block_multi',
+        get_block_multi_srv,
+        get_block_multi)
     #srv_light = rospy.Service('get_light_data', light_data_msg, world.getLight)
     #srv_biome = rospy.Service('get_biome_data', biome_data_msg, world.getBiome)
 

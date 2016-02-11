@@ -26,9 +26,9 @@ Note:
    in such a weird way.
 
 Method:
-is_attractive(atom): To judge an atom is attractive enough(sti is large enough).
-move_toward_block(block_atom): move to a place near the input block.
-set_look(pitch_atom, yaw_atom): look toward the given direction.
+is_attractive(atom, sti_std) : Judge an atom is attractive (large sti).
+move_toward_block(block_atom) : move to a place near the input block.
+set_look(pitch_atom, yaw_atom) : look toward the given direction.
 set_relative_look(pitch_atom, yaw_atom): look toward current + given direction.
 set_relative_move(yaw_atom, dist_atom, jump_atom): move toward the given yaw.
 
@@ -46,7 +46,8 @@ Seperate the schemas to different modules: some schemas are for decision making
 """
 
 import math
-import roslib; roslib.load_manifest('minecraft_bot')
+import roslib
+roslib.load_manifest('minecraft_bot')
 import rospy
 from minecraft_bot.srv import look_srv, rel_move_srv, abs_move_srv, dig_srv
 from opencog.spacetime import SpaceTimeAndAtomSpace
@@ -54,52 +55,49 @@ from opencog.spatial import get_near_free_point
 from opencog.atomspace import types, TruthValue
 from opencog.type_constructors import *
 
-rospy.wait_for_service('set_relative_look')
-rospy.wait_for_service('set_look')
-rospy.wait_for_service('set_relative_move')
-rospy.wait_for_service('set_move')
-rospy.wait_for_service('set_dig')
 
-atomspace = SpaceTimeAndAtomSpace().get_atomspace()
-space_server = SpaceTimeAndAtomSpace().get_space_server()
-
-try:
-    _ros_set_relative_look = rospy.ServiceProxy('set_relative_look', look_srv)
-    _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
-    _ros_set_relative_move = rospy.ServiceProxy('set_relative_move', rel_move_srv)
-    _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
-    _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
-except rospy.ServiceException, e:
-    print "service call failed: %s"% e
-
-def is_attractive(atom):
-    """judge if atom is attractive enough
-    Return: TruthValue(1,1) if it's attractive else TruthValue(0,1)
-    TODO: 
-    Set the sti standard value as argument: For now we set "sti > 1" as condition.
+def is_attractive(atom, sti_std=1):
     """
+    Judge if atom is attractive enough
+
+    Args:
+        atom(opencog.atomspace.Atom): The atom to be checked itself.
+        sti_std: Standard sti value against which the atom would be judged.
+
+    Returns: TruthValue(1,1) if it's attractive else TruthValue(0,1)
+    """
+
+    # print 'is_attractive'
     sti = atom.av['sti']
-    if sti > 1:
-        return TruthValue(1,1)
+    if sti > sti_std:
+        # print 'attractive!'
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
+        # print 'boring'
+        return TruthValue(0, 1)
+
 
 def move_toward_block(block_atom):
-    """Make bot move near the block
-    If there's no enough surrounding block info,
+    """
+    Make bot move near the block. If there's no surrounding block info,
     the bot may find no place to stand on and stop moving.
     Also if there's no empty place near ( distance <= 2) the block,
     the bot will not move.
-    Arg:
-        block_atom(opencog.atomspace.Atom): The atom representing block
-    Return: TruthValue(1,1) if move success else TruthValue(0,1)
+    Args:
+        block_atom(opencog.atomspace.Atom): The atom representing block,
+                towards which bot is made to move.
+
+    Returns: TruthValue(1,1) if move success else TruthValue(0,1).
+
     TODO:
         Make it faster: the calculation of near place is slow.
         Add distance argument: make caller control the judgement of "near"
     """
+
     print 'move toward atom', block_atom
 
-    # Get the block position info from the atomspace, to do this we query spacemap.
+    # Get the block position info from the atomspace, to do this we query
+    # spacemap.
     jump = False
     map_handle = (atomspace.get_atoms_by_name(
         types.SpaceMapNode, "MCmap")[0]).h
@@ -109,14 +107,15 @@ def move_toward_block(block_atom):
 
     # If we did not find the block in the spacemap than return false, otherwise
     # continue the function.
-    if block_pos == None:
-        print 'block position not found.',block_atom
-        return TruthValue(0,1)
+    if block_pos is None:
+        print 'block position not found.', block_atom
+        return TruthValue(0, 1)
 
     # Try to find an open block we can stand on near the target block.
-    dest = get_near_free_point(atomspace, cur_map, block_pos, 2, (1,0,0), True)
+    dest = get_near_free_point(
+        atomspace, cur_map, block_pos, 2, (1, 0, 0), True)
 
-    if dest == None:
+    if dest is None:
         print 'get_no_free_point'
 
     print 'block_pos, dest', block_pos, dest
@@ -128,102 +127,148 @@ def move_toward_block(block_atom):
     # Check to see if we are already standing where we want, if so then we are
     # done, otherwise actually pass the move call along to ROS.
     if (math.floor(self_pos[0]) == dest[0]
-        and math.floor(self_pos[1]) == dest[1]
-        and math.floor(self_pos[2]) == dest[2]):
+            and math.floor(self_pos[1]) == dest[1]
+            and math.floor(self_pos[2]) == dest[2]):
         print 'has arrived there'
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
         # Pass the call to ROS and return its success value back to the caller of this function.
-        #TODO: In Minecraft the up/down direction is y coord
+        # TODO: In Minecraft the up/down direction is y coord
         # but we should swap y and z in ros node, not here..
         response = _ros_set_move(block_pos[0], block_pos[1], jump)
-        # TODO: The AI is expected to finish a full step in less than 1 second, so we should figure out a better value for this wait timer.
+        # TODO: The AI is expected to finish a full step in less than 1 second,
+        # so we should figure out a better value for this wait timer.
         rospy.sleep(1)
         print 'action_schemas: abs_move response', response
         if response.state:
             print 'move success'
-            return TruthValue(1,1)
+            return TruthValue(1, 1)
         else:
             print 'move fail'
-            return TruthValue(0,1)
+            return TruthValue(0, 1)
+
 
 def dig_block(block_atom):
-    """ Make the bot mine the block with the currently selected tool until the block is mined out.
     """
-    print 'dig block', block_atom
+    Make the bot mine the block with the currently selected tool until
+    the block is mined out.
+
+    Args:
+        block_atom(opencog.atomspace.Atom): The atom representing block,
+                which the bot has to mine.
+
+    Returns: TruthValue(1,1) if block is mined and TruthValue(0,1) otherwise.
+    """
+
+    print 'Dig block:', block_atom
 
     map_handle = (atomspace.get_atoms_by_name(
         types.SpaceMapNode, "MCmap")[0]).h
     cur_map = space_server.get_map(map_handle)
     block_pos = cur_map.get_block_location(block_atom.h)
-    if block_pos == None:
-        print 'block position not found.',block_atom
-        return TruthValue(0,1)
+    if block_pos is None:
+        print 'block position not found.', block_atom
+        return TruthValue(0, 1)
     else:
-        #TODO: Flipping y and z positions for ROS to Minecraft convention
+        # TODO: Flipping y and z positions for ROS to Minecraft convention
         response = _ros_set_dig(block_pos[0], block_pos[2], block_pos[1])
         return TruthValue(1, 1)
 
+
 def set_look(pitch_atom, yaw_atom):
-    """set look toward the given direction.
-    The look direction will be changed to the diretion we pass.
-    Args:
-        pitch_atom(opencog.atomspace.Atom): A NumberNode representing pitch in degree
-        yaw_atom(opencog.atomspace.Atom): A NumberNode representing yaw in degree
-    Return:  TruthValue(1,1) if set look success else TruthValue(0,1)
     """
+    Set look toward the given direction.
+    The look direction will be changed to the direction passed.
+
+    Args:
+        pitch_atom(opencog.atomspace.Atom): NumberNode representing pitch in degree
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing yaw in degree
+
+    Returns: TruthValue(1,1) if set look success else TruthValue(0,1)
+    """
+
     pitch = float(pitch_atom.name)
     yaw = float(yaw_atom.name)
     response = _ros_set_look(yaw, pitch)
     if response == True:
-        return TruthValue(1,1)
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
+        return TruthValue(0, 1)
+
 
 def set_relative_look(pitch_atom, yaw_atom):
-    """set relative look toward the given direction.
+    """
+    Set relative look toward the given direction.
     The look will be changed by adding pitch and yaw on current direction.
+
     Args:
-        pitch_atom(opencog.atomspace.Atom):
-            A NumberNode representing relative pitch in degree
-        yaw_atom(opencog.atomspace.Atom):
-            A NumberNode representing relative yaw in degree
-    Return:  TruthValue(1,1) if set look success else TruthValue(0,1)
+        pitch_atom(opencog.atomspace.Atom): NumberNode representing relative
+                pitch in degree
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing relative
+                yaw in degree
+
+    Returns: TruthValue(1,1) if set look success else TruthValue(0,1)
     """
 
     pitch = float(pitch_atom.name)
     yaw = float(yaw_atom.name)
     response = _ros_set_relative_look(pitch, yaw)
-    if response == True:
-        return TruthValue(1,1)
+    if response is True:
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
-            
+        return TruthValue(0, 1)
+
+
 def set_relative_move(yaw_atom, dist_atom, jump_atom):
-    """set relative move toward the given direction.
+    """
+    Set relative move toward the given direction.
     The bot will move toward the yaw direction in input distance.
     For now the jump_atom is not used. We assume bot will not jump
     during the move.
+
     Args:
-        yaw_atom(opencog.atomspace.Atom):
-            A NumberNode representing yaw in degree
-        dist_atom(opencog.atomspace.Atom):
-            A NumberNode representing distance in Minecraft unit
+        yaw_atom(opencog.atomspace.Atom): NumberNode representing yaw in degree.
+        dist_atom(opencog.atomspace.Atom): NumberNode representing distance in
+                Minecraft unit.
         jump_atom(opencog.atomspace.Atom):
-            not used now, should be used for determining jump or not.
-    Return: TruthValue(1,1) if move success else TruthValue(0,1)
-    TODO:
-        use jump_atom to determine jump or not: We can determine jump
-        or not by checking the TV of jump_atom.
+            The decision of jumping is taken by checking the TV of this atom.
+
+    Returns: TruthValue(1,1) if move success else TruthValue(0,1)
     """
 
     print 'set_rel_move'
     yaw = float(yaw_atom.name)
     dist = float(dist_atom.name)
-    jump = False
+
+    if jump_atom.tv == 1:
+        jump = True
+    else:
+        jump = False
     response = _ros_set_relative_move(yaw, dist, jump)
     print 'set_rel_move: yaw, dist, jump, res', yaw, dist, jump, response
-    if response == True:
-        return TruthValue(1,1)
+    if response is True:
+        return TruthValue(1, 1)
     else:
-        return TruthValue(0,1)
+        return TruthValue(0, 1)
+
+
+if __name__ == '__main__':
+
+    rospy.wait_for_service('set_relative_look')
+    rospy.wait_for_service('set_look')
+    rospy.wait_for_service('set_relative_move')
+    rospy.wait_for_service('set_move')
+    rospy.wait_for_service('set_dig')
+
+    atomspace = SpaceTimeAndAtomSpace().get_atomspace()
+    space_server = SpaceTimeAndAtomSpace().get_space_server()
+
+    try:
+        _ros_set_relative_look = rospy.ServiceProxy('set_relative_look', look_srv)
+        _ros_set_look = rospy.ServiceProxy('set_look', look_srv)
+        _ros_set_relative_move = rospy.ServiceProxy(
+            'set_relative_move', rel_move_srv)
+        _ros_set_move = rospy.ServiceProxy('set_move', abs_move_srv)
+        _ros_set_dig = rospy.ServiceProxy('set_dig', dig_srv)
+    except rospy.ServiceException as e:
+        print "service call failed: %s" % e
