@@ -3,4 +3,4 @@
 __author__ = "Karan Desai"
 
 __all__ = ["abs_move_srv", "get_block_multi_srv", "get_block_srv", "look_srv",
-           "rel_move_srv", "visible_blocks_srv"]
+           "rel_move_srv", "visible_blocks_srv", "dig_srv"]

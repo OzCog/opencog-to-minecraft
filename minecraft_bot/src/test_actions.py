@@ -100,7 +100,7 @@ def testRelativeLook():
 
 def resetLook():
     
-    resp = testLookClient(0.,0.)
+    resp = testLookClient(60.,45.)
     if resp:
         print "reset bot head pose"
     else:
@@ -111,4 +111,5 @@ if __name__ == "__main__":
 
     resetLook()
     testMove()
+    testPickUpInventory()
     #testRelativeLook()

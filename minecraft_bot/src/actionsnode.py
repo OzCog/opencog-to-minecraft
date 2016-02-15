@@ -5,7 +5,6 @@ Created by Bradley Sheneman
 action server. receives requests for simple actions and returns success or failure
 another node should be responsible for building plans, and send the deconstructed plan
 to this server one action at a time
-
 """
 
 from math import pi, acos, asin, sqrt

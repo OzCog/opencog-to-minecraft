@@ -229,11 +229,11 @@ class GroundedKnowledge:
 
         # Loop over all the categories.
         for cat_base in categories_dict.keys():
+            base_atom = self._atomspace.add_node(
+                types.ConceptNode, cat_base)
             # Within each category, loop over all of the objects that are in
             # that category.
             for subclass_object in categories_dict[cat_base]:
-                base_atom = self._atomspace.add_node(
-                    types.ConceptNode, cat_base)
                 subclass_atom = self._atomspace.add_node(
                     types.ConceptNode, subclass_object)
                 # TODO: Maybe delete this permanantly, for now just store as a predicate, not as an InheritanceLink
