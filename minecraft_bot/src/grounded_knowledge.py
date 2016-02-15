@@ -34,6 +34,7 @@ from minecraft_data.v1_8 import biomes_list
 from minecraft_data.v1_8 import instruments_list
 
 
+
 class GroundedKnowledge:
 
     def __init__(self, atomspace, space_server, time_server):
@@ -103,7 +104,8 @@ class GroundedKnowledge:
                     # hardness for this variation as well.
                     if hard_node != 0:
                         hard_node = add_predicate(
-                            self._atomspace, "Block hardness", concept_node, NumberNode(str(block["hardness"])))
+                            self._atomspace, "Block hardness", concept_node,
+                                NumberNode(str(block["hardness"])))
                         # print hard_node
 
     def load_item_knowledge(self, knowledge_level):
@@ -174,7 +176,8 @@ class GroundedKnowledge:
 
             if "type" in entity:
                 type_node = add_predicate(
-                    self._atomspace, "Minecraft entity type", atom, ConceptNode(str(entity["type"])))
+                    self._atomspace, "Minecraft entity type", atom,
+                        ConceptNode(str(entity["type"])))
                 # print type_node
 
     def load_category_knowledge(self, knowledge_level):
@@ -209,7 +212,6 @@ class GroundedKnowledge:
                 "Spruce wood with only bark",
                 "Birch wood with only bark",
                 "Jungle wood with only bark",
-
                 "Wood (Acacia/Dark Oak)",
                 "Acacia wood facing up/down",
                 "Dark Oak wood facing up/down",
@@ -219,25 +221,45 @@ class GroundedKnowledge:
                 "Dark Oak wood facing North/South",
                 "Acacia wood with only bark",
                 "Dark Oak wood with only bark"),
-
-            "STONE_BLOCK": ("STONE", "COBBLESTONE"),
-            "ORE_BLOCK": ("COAL_ORE", "IRON_ORE", "GOLD_ORE", "DIAMOND_ORE", "LAPIS_ORE", "REDSTONE_ORE", "GLOWSTONE"),
-            "PHYSICS_BLOCK": ("WATER", "LAVA", "SAND", "GRAVEL"),
-            "FLOWING_BLOCK": ("WATER", "LAVA"),
-            "FALLING_BLOCK": ("SAND", "GRAVEL"),
+            "STONE_BLOCK": (
+                "STONE",
+                "COBBLESTONE"),
+            "ORE_BLOCK": (
+                "COAL_ORE",
+                "IRON_ORE",
+                "GOLD_ORE",
+                "DIAMOND_ORE",
+                "LAPIS_ORE",
+                "REDSTONE_ORE",
+                "GLOWSTONE"),
+            "PHYSICS_BLOCK": (
+                "WATER",
+                "LAVA",
+                "SAND",
+                "GRAVEL"),
+            "FLOWING_BLOCK": (
+                "WATER",
+                "LAVA"),
+            "FALLING_BLOCK": (
+                "SAND",
+                "GRAVEL"),
         }
 
         # Loop over all the categories.
         for cat_base in categories_dict.keys():
-            base_atom = self._atomspace.add_node(
-                types.ConceptNode, cat_base)
             # Within each category, loop over all of the objects that are in
             # that category.
             for subclass_object in categories_dict[cat_base]:
+                base_atom = self._atomspace.add_node(
+                    types.ConceptNode, cat_base)
                 subclass_atom = self._atomspace.add_node(
                     types.ConceptNode, subclass_object)
-                # TODO: Maybe delete this permanantly, for now just store as a predicate, not as an InheritanceLink
-                #inh_atom = self._atomspace.add_link(types.InheritanceLink, [subclass_atom, base_atom])
+
+                # TODO: Maybe delete this permanantly, for now just store as
+                #  a predicate, not as an InheritanceLink
+                #inh_atom = self._atomspace.add_link(types.InheritanceLink,
+                # [subclass_atom, base_atom])
+
                 pred_atom = add_predicate(
                     self._atomspace, "be", subclass_atom, base_atom)
                 # print inh_atom
@@ -254,7 +276,9 @@ class GroundedKnowledge:
 
         goal_dict = {
             "Gather resources": {
-                "description": "Gather resources like wood, stone, ore, etc.  The base resources which are needed to craft tools and other items.",
+                "description": "Gather resources like wood, stone, ore, etc. \
+                                The base resources which are needed to craft \
+                                tools and other items.",
                 "init_need": 1,
                 "init_desire": 10,
             },
@@ -278,7 +302,8 @@ class GroundedKnowledge:
             },
 
             "Look around": {
-                "description": "Patrol the already explored area to look at blocks that have not been seen in a long time.",
+                "description": "Patrol the already explored area to look at \
+                                blocks that have not been seen in a long time.",
                 "init_need": 0,
                 "init_desire": 0.1,
             },
