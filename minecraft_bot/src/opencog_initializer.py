@@ -49,6 +49,13 @@ gn.load_category_knowledge(1.0)
 print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
 gn.load_goal_knowledge(1.0)
 print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_window_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_biome_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+gn.load_instrument_knowledge(1.0)
+print "Atomspace contains %s atoms" % len(spacetime.get_atomspace())
+
 
 while not rospy.is_shutdown():
     print "\n\nTime Step: ", time_step

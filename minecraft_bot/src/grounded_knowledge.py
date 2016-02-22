@@ -29,6 +29,10 @@ from atomspace_util import add_predicate
 from minecraft_data.v1_8 import blocks_list
 from minecraft_data.v1_8 import items_list
 from minecraft_data.v1_8 import entities_list
+from minecraft_data.v1_8 import windows_list
+from minecraft_data.v1_8 import biomes_list
+from minecraft_data.v1_8 import instruments_list
+
 
 
 class GroundedKnowledge:
@@ -316,3 +320,131 @@ class GroundedKnowledge:
         goal_link = self._atomspace.add_link(
             types.Link, (current_goal, ConceptNode("Look around")))
         # print goal_link
+
+    def load_window_knowledge(self, knowledge_level):
+        """ Creates nodes in the atomspace for each of the windows and their
+        various properties
+        """
+        print "\nLoading grounded knowledge: windows"
+
+        # This root atom is the atom that all windows types are a subtype of.
+        window_type_root_atom = self._atomspace.add_node(
+            types.ConceptNode, "WINDOW_TYPE")
+
+        # Loop over the windows in the spock bot library and load each one into
+        # the atomspace.
+        for window in windows_list:
+            atom = self._atomspace.add_node(types.ConceptNode, window["name"])
+            id_concept_node = self._atomspace.add_node(
+                types.ConceptNode, window["id"])
+            repr_node = add_predicate(
+                self._atomspace,
+                "Represented in Minecraft by",
+                atom,
+                id_concept_node)
+            inh_node = add_predicate(
+                self._atomspace, "be", window_type_root_atom, atom)
+            # print "repr_node", repr_node
+            # print "inh_node", inh_node
+
+            if "slots" in window:
+                for slot in window["slots"]:
+                    concept_node = self._atomspace.add_node(
+                        types.ConceptNode, slot["name"])
+                    index_node = add_predicate(
+                        self._atomspace, "Slot index", concept_node, NumberNode(str(slot["index"])))
+
+                    if "size" in slot:
+                        size_node = add_predicate(
+                            self._atomspace, "Slot index", concept_node, NumberNode(str(slot["size"])))
+                        # print "size_node", size_node
+                    slot_node = add_predicate(
+                        self._atomspace, "Slot", atom, concept_node)
+                    # print "index_node", index_node
+                    # print "slot_node", slot_node
+
+            if "properties" in window:
+                for property in window["properties"]:
+                    concept_node = self._atomspace.add_node(
+                        types.ConceptNode, property)
+                    property_node = add_predicate(
+                        self._atomspace, "Property", atom, concept_node)
+                    # print "property_node", property_node
+
+            if "openedWith" in window:
+                for opened_with in window["openedWith"]:
+                    concept_node = self._atomspace.add_node(
+                        types.ConceptNode, opened_with["type"])
+                    id_node = add_predicate(self._atomspace,
+                                            "Opened with ID",
+                                            concept_node,
+                                            NumberNode(str(opened_with["id"])))
+                    opened_with_node = add_predicate(
+                        self._atomspace, "Opened with", atom, concept_node)
+                    # print "id_node", id_node
+                    # print "opened_with_node", opened_with_node
+
+    def load_biome_knowledge(self, knowledge_level):
+        """ Creates nodes in the atomspace for each of the biomes and their
+        various properties
+        """
+        print "\nLoading grounded knowledge: biomes"
+
+        # This root atom is the atom that all biome types are a subtype of.
+        biome_type_root_atom = self._atomspace.add_node(
+            types.ConceptNode, "BIOME_TYPE")
+
+        # Loop over the biome types in the spock bot library and load each one
+        # into the atomspace.
+        for biome in biomes_list:
+            concept_node = self._atomspace.add_node(
+                types.ConceptNode, biome["name"])
+            repr_node = add_predicate(self._atomspace,
+                                      "Represented in Minecraft by",
+                                      concept_node,
+                                      NumberNode(str(biome["id"])))
+            inh_node = add_predicate(
+                self._atomspace,
+                "be",
+                biome_type_root_atom,
+                concept_node)
+            # print inh_node
+            # print repr_node
+
+            color_node = add_predicate(
+                self._atomspace, "Color", concept_node, NumberNode(str(biome["color"])))
+            # print color_node
+            rainfall_node = add_predicate(
+                self._atomspace, "Rainfall", concept_node, NumberNode(str(biome["rainfall"])))
+            # print color_node
+            temperature_node = add_predicate(
+                self._atomspace, "Temperature", concept_node, NumberNode(str(biome["temperature"])))
+            # print temperature_node
+
+    def load_instrument_knowledge(self, knowledge_level):
+        """ Creates nodes in the atomspace for each of the instruments and their
+        various properties
+        """
+        print "\nLoading grounded knowledge: instruments"
+
+        # This root atom is the atom that all instrument types are a subtype
+        # of.
+        instrument_type_root_atom = self._atomspace.add_node(
+            types.ConceptNode, "INSTRUMENT_TYPE")
+
+        # Loop over the instrument types in the spock bot library and load each
+        # one into the atomspace.
+        for instrument in instruments_list:
+            concept_node = self._atomspace.add_node(
+                types.ConceptNode, instrument["name"])
+            repr_node = add_predicate(self._atomspace,
+                                      "Represented in Minecraft by",
+                                      concept_node,
+                                      NumberNode(str(instrument["id"])))
+            inh_node = add_predicate(
+                self._atomspace,
+                "be",
+                instrument_type_root_atom,
+                concept_node)
+            # print inh_node
+            # print repr_node
