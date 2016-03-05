@@ -1,7 +1,7 @@
 # perception_module.py
 # ! /usr/bin/env python2.7 python2 python
 
-from opencog.atomspace import AtomSpace, Handle, TruthValue, types, \
+from opencog.atomspace import AtomSpace, Atom, TruthValue, types, \
     get_refreshed_types
 from opencog.type_constructors import *
 from opencog.cogserver_type_constructors import *
@@ -44,8 +44,8 @@ class PerceptionManager:
 
     def _get_map(self, map_name=default_map_name):
         try:
-            map_handle = (self._atomspace.get_atoms_by_name(
-                    types.SpaceMapNode, map_name)[0]).h
+            map_handle = (self._atomspace.get_atoms_by_type(
+                    types.SpaceMapNode)[0])
         except IndexError:
             return None, None
         return map_handle, self._space_server.get_map(map_handle)
@@ -55,8 +55,8 @@ class PerceptionManager:
         # index the SpaceMap and EntityRecorder
         # But here we still call it er_handle
         try:
-            er_handle = (self._atomspace.get_atoms_by_name(
-                    types.SpaceMapNode, er_name)[0]).h
+            er_handle = (self._atomspace.get_atoms_by_type(
+                    types.SpaceMapNode)[0])
         except IndexError:
             return None, None
         return er_handle, self._space_server.get_entity_recorder(er_handle)
@@ -97,8 +97,7 @@ class PerceptionManager:
                 # Block already exists, check to see if it is still the same
                 # type.
                 old_block_type_node = get_predicate(self._atomspace, "material",
-                                                    Atom(old_block_handle,
-                                                         self._atomspace), 1)
+                                                    old_block_handle, 1)
                 old_block_type = self._atomspace.get_name(
                         old_block_type_node.h)
                 if old_block_type == block_material:
@@ -116,11 +115,9 @@ class PerceptionManager:
                     # from the atomspace and mark the old block as being
                     # disappeared for attention allocation routine to look at.
 
-                    blocknode, updated_eval_links = Atom(
-                            Handle(-1), self._atomspace), []
+                    blocknode, updated_eval_links = Atom(-1), []
                     disappeared_link = add_predicate(
-                            self._atomspace, "disappeared", Atom(
-                                    old_block_handle, self._atomspace))
+                            self._atomspace, "disappeared", old_block_handle)
                     updated_eval_links.append(disappeared_link)
                 else:
                     # NOTE: There is a bit of a bug here since the attention
@@ -131,8 +128,7 @@ class PerceptionManager:
                             map_handle)
 
                 disappeared_link = add_predicate(
-                        self._atomspace, "disappeared", Atom(
-                                old_block_handle, self._atomspace))
+                        self._atomspace, "disappeared", old_block_handle)
                 updated_eval_links.append(disappeared_link)
 
             # Add the block to the spaceserver and the timeserver.

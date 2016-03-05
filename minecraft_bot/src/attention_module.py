@@ -46,7 +46,7 @@ class AttentionController:
         for all block:
             decrease their av
         """
-        new_handle = bindlink(self._atomspace,
+        new_atom = bindlink(self._atomspace,
                               BindLink(
                                   VariableNode("$x"),
                                   EvaluationLink(
@@ -57,9 +57,8 @@ class AttentionController:
                                       PredicateNode("new_block"),
                                       VariableNode("$x")
                                   )
-                              ).h)
-        new_atom = Atom(new_handle, self._atomspace)
-        disappeared_handle = bindlink(self._atomspace,
+                              ))
+        disappeared_atom = bindlink(self._atomspace,
                                       BindLink(
                                           VariableNode("$x"),
                                           EvaluationLink(
@@ -70,8 +69,7 @@ class AttentionController:
                                               PredicateNode("disappeared"),
                                               VariableNode("$x")
                                           )
-                                      ).h)
-        disappeared_atom = Atom(disappeared_handle, self._atomspace)
+                                      ))
         all_eval_links = new_atom.out + disappeared_atom.out
         print "Found %s new blocks." % len(new_atom.out)
         print "Found %s disappeared blocks." % len(disappeared_atom.out)
@@ -82,12 +80,12 @@ class AttentionController:
             cur_sti = atom.av['sti']
 
             # TODO: Make the 200 a constant, this occurs one other place.
-            self._atomspace.set_av(atom.h, sti=cur_sti + 200)
+            self._atomspace.set_av(atom, sti=cur_sti + 200)
             self._atomspace.remove(eval_link)
         print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
             self._atomspace.set_av(
-                block.h, sti=max(
+                block, sti=max(
                     cur_sti - 10, cur_sti / 1.36471))
             # print block
