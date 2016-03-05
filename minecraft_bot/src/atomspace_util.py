@@ -50,7 +50,7 @@ def get_predicate(atomspace, predicate_name, target_node, num_of_val):
                           ).h
                           )
     try:
-        result_set_out = Atom(result_set, atomspace).out[0]
+        result_set_out = result_set.out[0]
         if atomspace.get_type(result_set_out.h) == types.ListLink:
             result_list = result_set_out.out
             return result_list

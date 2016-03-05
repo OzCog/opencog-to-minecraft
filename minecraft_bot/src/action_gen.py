@@ -106,10 +106,10 @@ class ActionGenerator:
                                 VariableNode("$goal")
                             ),
                             VariableNode("$goal")
-                        ).h
+                        )
                         )
 
-        goal_name = Atom(goal, self._atomspace).out[0].name
+        goal_name = goal.out[0].name
         print "goal_name: ", goal_name
 
         #######################################################################
@@ -173,15 +173,15 @@ class ActionGenerator:
                                       )
                                   ),
                                   VariableNode("$block")
-                              ).h
                               )
-            print "action_gen: result", Atom(result, self._atomspace)
+                              )
+            print "action_gen: result", result
 
             # If we sucessfully mined out a block of wood we have been very
             # successful in fulfilling this goal and should continue to try to
             # mine more unless something else really urgent comes up.  If we
             # failed, then we should try to find something else to do.
-            if self._atomspace.get_outgoing(result) != []:
+            if result.out != []:
                 goal_success_rate = 5.0
             else:
                 goal_success_rate = -5.0
@@ -277,9 +277,10 @@ class ActionGenerator:
                                           ),
                                       ),
                                       VariableNode("$goal")
-                                  ).h)
-            goal_atoms_list = Atom(goal_atoms, self._atomspace).out
+                                  ))
+
             # print "All goals: ", goal_atoms_list
+            goal_atoms_list = goal_atoms.out
 
             # TODO: This should be done in atomese.
             random_goal = goal_atoms_list[
