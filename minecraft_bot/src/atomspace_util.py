@@ -47,11 +47,11 @@ def get_predicate(atomspace, predicate_name, target_node, num_of_val):
                                   )
                               ),
                               var
-                          ).h
+                          )
                           )
     try:
         result_set_out = result_set.out[0]
-        if atomspace.get_type(result_set_out.h) == types.ListLink:
+        if result_set_out.type == types.ListLink:
             result_list = result_set_out.out
             return result_list
         else:

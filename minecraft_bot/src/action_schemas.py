@@ -259,7 +259,7 @@ def set_relative_move(yaw_atom, dist_atom, jump_atom):
     yaw = float(yaw_atom.name)
     dist = float(dist_atom.name)
 
-    if jump_atom.tv == 1:
+    if jump_atom.tv == TruthValue(1,1):
         jump = True
     else:
         jump = False
