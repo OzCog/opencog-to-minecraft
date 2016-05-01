@@ -37,7 +37,6 @@ class PerceptionManager:
         self._atomspace = atomspace
         self._space_server = space_server
         self._time_server = time_server
-        # print self._space_server
         self._space_server.add_map(default_map_timestamp,
                                    default_map_name,
                                    default_map_resolution)
@@ -86,29 +85,29 @@ class PerceptionManager:
                 material_dict[block_material] = 1
 
             # If this is the first time this block has been seen
-            if old_block_handle.is_undefined():
+            if old_block_handle == None:
                 # Create the block in atomspace and set its initial attention
                 # value.
                 blocknode, updated_eval_links = self._build_block_nodes(
                         block, map_handle)
                 # TODO: Make the 200 a constant, this occurs one other place.
-                self._atomspace.set_av(blocknode.h, 200)
+
+                blocknode.av['sti'] = 200
             else:
                 # Block already exists, check to see if it is still the same
                 # type.
                 old_block_type_node = get_predicate(self._atomspace, "material",
                                                     old_block_handle, 1)
-                old_block_type = self._atomspace.get_name(
-                        old_block_type_node.h)
+                old_block_type = old_block_type_node.name
                 if old_block_type == block_material:
                     # Add short term importance to this block since it is in
                     # the field of view.
-                    cur_sti = self._atomspace.get_av(old_block_handle)['sti']
+                    cur_sti = old_block_handle.av['sti']
                     # TODO: Make these numbers constants.
                     # TODO: Make the amount added be dependendant on the
                     # distance to the block.
                     cur_sti = min(cur_sti + 20, 500)
-                    self._atomspace.set_av(old_block_handle, cur_sti)
+                    old_block_handle.av['sti'] = cur_sti
                     continue
                 elif block.blockid == 0:
                     # Block used to be solid and is now an air block, remove it
@@ -132,20 +131,20 @@ class PerceptionManager:
                 updated_eval_links.append(disappeared_link)
 
             # Add the block to the spaceserver and the timeserver.
-            self._space_server.add_map_info(blocknode.h, map_handle, False,
+            self._space_server.add_map_info(blocknode, map_handle, False,
                                             False,
                                             block.ROStimestamp,
                                             block.x, block.y, block.z)
-            if old_block_handle.is_undefined():
+            if old_block_handle == None:
                 self._time_server.add_time_info(
-                        blocknode.h, block.ROStimestamp, "ROS")
+                        blocknode, block.ROStimestamp, "ROS")
                 self._time_server.add_time_info(
-                        blocknode.h, block.MCtimestamp, "MC")
+                        blocknode, block.MCtimestamp, "MC")
             for link in updated_eval_links:
                 self._time_server.add_time_info(
-                        link.h, block.ROStimestamp, "ROS")
+                        link, block.ROStimestamp, "ROS")
                 self._time_server.add_time_info(
-                        link.h, block.MCtimestamp, "MC")
+                        link, block.MCtimestamp, "MC")
                 # print blocknode
                 # print updated_eval_links
 
@@ -179,15 +178,15 @@ class PerceptionManager:
 
         # TODO: pass timestamp in message
         timestamp = 0
-        self._space_server.add_map_info(self_node.h, map_handle,
+        self._space_server.add_map_info(self_node, map_handle,
                                         True, True, timestamp,
                                         data.x, data.y, data.z, "ROS")
-        if old_self_handle.is_undefined():
-            self._time_server.add_time_info(self_node.h, timestamp, "ROS")
-            self._time_server.add_time_info(self_node.h, timestamp, "MC")
+        if old_self_handle == None:
+            self._time_server.add_time_info(self_node, timestamp, "ROS")
+            self._time_server.add_time_info(self_node, timestamp, "MC")
         for link in updated_eval_links:
-            self._time_server.add_time_info(link.h, timestamp, "ROS")
-            self._time_server.add_time_info(link.h, timestamp, "MC")
+            self._time_server.add_time_info(link, timestamp, "ROS")
+            self._time_server.add_time_info(link, timestamp, "MC")
             # print self_node
             # print self._atomspace.get_incoming(self_node.h)
             # print "handle_self_pos_message_end"

@@ -46,6 +46,8 @@ class AttentionController:
         for all block:
             decrease their av
         """
+
+
         new_atom = bindlink(self._atomspace,
                               BindLink(
                                   VariableNode("$x"),
@@ -58,6 +60,7 @@ class AttentionController:
                                       VariableNode("$x")
                                   )
                               ))
+
         disappeared_atom = bindlink(self._atomspace,
                                       BindLink(
                                           VariableNode("$x"),
@@ -80,12 +83,9 @@ class AttentionController:
             cur_sti = atom.av['sti']
 
             # TODO: Make the 200 a constant, this occurs one other place.
-            self._atomspace.set_av(atom, sti=cur_sti + 200)
+            atom.av['sti'] = cur_sti + 200
             self._atomspace.remove(eval_link)
         print len(self._atomspace.get_atoms_by_type(types.StructureNode)), " Structure Nodes in AtomSpace."
         for block in self._atomspace.get_atoms_by_type(types.StructureNode):
             cur_sti = block.av['sti']
-            self._atomspace.set_av(
-                block, sti=max(
-                    cur_sti - 10, cur_sti / 1.36471))
-            # print block
+            block.av['sti'] = max(cur_sti - 10, cur_sti / 1.36471)
