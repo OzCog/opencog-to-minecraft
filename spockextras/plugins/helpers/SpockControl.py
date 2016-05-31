@@ -21,7 +21,7 @@ from minecraft_bot.msg import entity_movement_meta, entity_object_meta, entity_p
 from minecraft_bot.msg import position_msg
 
 from spockbot import mcdata
-from spockbot.plugins.base import pl_announce
+from spockbot.plugins.base import PluginBase, pl_announce
 
 import logging
 logger = logging.getLogger('spock')
@@ -37,10 +37,30 @@ class SpockControlCore:
 
 
 @pl_announce('SpockControl')
-class SpockControlPlugin:
+class SpockControlPlugin(PluginBase):
+
+    requires = ('Event','Messenger','Net','Movement','World','ClientInfo',
+		'Inventory','MineAndPlace','SendMapData','SendEntityData')
+
+
+    events = {
+	
+	'ros_chunk_data': 'sendChunkData',
+	'ros_chunk_bulk': 'sendChunkBulk',
+	'ros_block_update': 'sendBlockUpdate',
+	'ros_entity_data': 'sendEntityData',
+	'client_death': 'sendClientDeathUpdate',
+        'ros_position_update': 'sendClientPositionUpdate',
+        'ros_client_inventory_update_window': 'sendInventoryData',
+
+    } 
 
     def __init__(self, ploader, settings):
+        
+	# Init PluginBase
+	super(SpockControlPlugin, self).__init__(ploader, settings)
 
+		
         self.event = ploader.requires('Event')
         self.msgr = ploader.requires('Messenger')
         self.net = ploader.requires('Net')
@@ -50,15 +70,17 @@ class SpockControlPlugin:
         # and any other state changes to the client from the Minecraft server
         self.clinfo = ploader.requires('ClientInfo')
         
-        self.inv=ploader.requires('NewInventory') 
+        self.inv=ploader.requires('Inventory') 
         self.test_field= False
-        
+     
+        """   
         # simply load all of the plugins
         ploader.requires('NewMovement')
         ploader.requires('MineAndPlace')
         ploader.requires('SendMapData')
         ploader.requires('SendEntityData')
-       
+        
+ 
         #ploader.reg_event_handler('ros_time_update', self.sendTimeUpdate)
         #ploader.reg_event_handler('ros_new_dimension', self.sendNewDimension)
         ploader.reg_event_handler('ros_chunk_data', self.sendChunkData)
@@ -76,7 +98,7 @@ class SpockControlPlugin:
         ploader.reg_event_handler('client_death', self.sendClientDeathUpdate)
         ploader.reg_event_handler('ros_position_update', self.sendClientPositionUpdate)
         ploader.reg_event_handler('ros_client_inventory_update_window', self.sendInventoryData)  
-         
+        """      
         
         self.core = SpockControlCore()
         ploader.provides('SpockControl', self.core)
